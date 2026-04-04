@@ -1,0 +1,92 @@
+{
+  "name": "codex-my-marketplace",
+  "interface": {
+    "displayName": "Codex My Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "dev-tools-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dev-tools-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "documentation-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/documentation-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Documentation"
+    },
+    {
+      "name": "infra-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/infra-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Infrastructure"
+    },
+    {
+      "name": "figma-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/figma-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    },
+    {
+      "name": "media-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/media-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Media"
+    },
+    {
+      "name": "design-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/design-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    },
+    {
+      "name": "web-design-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/web-design-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Web Development"
+    }
+  ]
+}

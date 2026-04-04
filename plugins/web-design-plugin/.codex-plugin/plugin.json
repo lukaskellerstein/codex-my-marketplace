@@ -1,0 +1,40 @@
+{
+  "name": "web-design-plugin",
+  "version": "0.1.0",
+  "description": "End-to-end web design plugin for Codex, from design docs to implementation and visual iteration.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "web-design",
+    "react",
+    "vite",
+    "frontend"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Web Design Plugin",
+    "shortDescription": "Design and build websites with an anti-slop workflow.",
+    "longDescription": "Packages the Codex web design workflow with design documentation, scaffold generation, parallel page building, and visual fix passes.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Web Development",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Design and build a landing page from this brief.",
+      "Generate multiple website directions from this spec.",
+      "Create a React and Vite marketing site with strong motion."
+    ],
+    "brandColor": "#0891B2"
+  }
+}

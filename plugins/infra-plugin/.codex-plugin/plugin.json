@@ -1,0 +1,38 @@
+{
+  "name": "infra-plugin",
+  "version": "0.1.0",
+  "description": "Infrastructure plugin for Kubernetes, Istio, Helm, Terraform, Traefik, and auth workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "kubernetes",
+    "terraform",
+    "helm",
+    "istio"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Infra Plugin",
+    "shortDescription": "Infrastructure delivery and platform operations skills.",
+    "longDescription": "Bundles Codex skills for platform engineering tasks across Kubernetes, Istio, Helm, Terraform, Traefik, and authentication systems.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Infrastructure",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Review this Helm chart for deployment risks.",
+      "Create a Terraform plan for this new service.",
+      "Explain the Istio config required for this traffic flow."
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

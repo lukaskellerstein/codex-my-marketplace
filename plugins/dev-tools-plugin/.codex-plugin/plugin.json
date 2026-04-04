@@ -1,0 +1,38 @@
+{
+  "name": "dev-tools-plugin",
+  "version": "0.1.0",
+  "description": "Developer workflow plugin for git, dead-code analysis, dependency updates, and spec sync tasks.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "developer-tools",
+    "git",
+    "dependencies",
+    "specs"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Dev Tools Plugin",
+    "shortDescription": "Reusable developer workflow skills.",
+    "longDescription": "Adds Codex skills and specialist agents for pull requests, dead-code analysis, dependency updates, and spec synchronization.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Review this repo for dead code and explain the safe removals.",
+      "Update dependencies in this project and note any breaking changes.",
+      "Prepare a PR plan for the changes in my current branch."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

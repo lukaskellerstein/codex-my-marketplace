@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "webdesign-playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ],
+      "description": "Browser automation for visual testing of built websites"
+    }
+  }
+}

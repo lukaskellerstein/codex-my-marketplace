@@ -1,0 +1,38 @@
+{
+  "name": "design-plugin",
+  "version": "0.1.0",
+  "description": "Creative direction plugin for styleguides, frontend aesthetics, design systems, and design review workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "design",
+    "styleguide",
+    "frontend",
+    "review"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Plugin",
+    "shortDescription": "Design direction and UI taste workflows.",
+    "longDescription": "Adds Codex skills and agents for design systems, visual direction, frontend aesthetics, prompt craft, and design review.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Design",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Create a styleguide for this product concept.",
+      "Review this UI for weak visual decisions.",
+      "Define a design system for this frontend."
+    ],
+    "brandColor": "#EA580C"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "media-plugin",
+  "version": "0.1.0",
+  "description": "Media generation plugin for images, video, music, speech, sourcing, and icon lookup workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "media",
+    "images",
+    "video",
+    "speech"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Media Plugin",
+    "shortDescription": "Generate or source media assets for projects.",
+    "longDescription": "Provides Codex workflows for image generation, stock sourcing, icon lookup, music generation, video generation, and speech creation.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Media",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Create image prompts for this landing page.",
+      "Find icon options for this product UI.",
+      "Generate a narration plan for this demo video."
+    ],
+    "brandColor": "#DC2626"
+  }
+}
