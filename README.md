@@ -60,8 +60,7 @@ End-to-end website and webapp design workflow for Codex, from brief to implement
 
 - Skills: `animation-system`, `page-architecture`, `css-architecture`, `variation`
 - Agents: `design-doc-foundation`, `design-doc-animation`, `design-doc-data`, `design-doc-media`, `design-doc-pages`, `scaffold-builder`, `page-builder`, `assembler`, `variation-generator`, `visual-fixer-page`, `visual-fixer-app`
-- Commands: `web-design`, `hook-test`
-- Hooks: yes
+- Commands: `web-design`
 
 ### [paperclip-plugin](plugins/paperclip-plugin)
 

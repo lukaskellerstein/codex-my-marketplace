@@ -18,7 +18,6 @@
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
-  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Web Design Plugin",
     "shortDescription": "Design and build websites with an anti-slop workflow.",

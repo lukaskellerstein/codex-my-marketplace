@@ -121,12 +121,10 @@ gws_skills_for_role() {
 # Plugin -> MCP permissions
 declare -A PLUGIN_MCP_PERMS
 PLUGIN_MCP_PERMS[media-plugin]="mcp__plugin_media-plugin_mermaid mcp__plugin_media-plugin_media-playwright mcp__plugin_media-plugin_media-mcp mcp__plugin_media-plugin_ElevenLabs"
-PLUGIN_MCP_PERMS[web-design-plugin]="mcp__plugin_web-design-plugin_webdesign-playwright"
 PLUGIN_MCP_PERMS[company-plugin]="mcp__plugin_company-plugin_dhl-api-assistant mcp__plugin_company-plugin_stripe"
 
 # Plugin dependencies
 declare -A PLUGIN_DEPS
-PLUGIN_DEPS[web-design-plugin]="design-plugin media-plugin office-plugin"
 PLUGIN_DEPS[design-plugin]="media-plugin office-plugin"
 
 # Built-in skills that should NOT be in frontmatter

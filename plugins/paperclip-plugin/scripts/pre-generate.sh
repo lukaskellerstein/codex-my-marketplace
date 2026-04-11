@@ -85,12 +85,10 @@ echo "[pre-generate] Agents: $AGENT_COUNT"
 # Plugin -> MCP permissions
 declare -A PLUGIN_MCP_PERMS
 PLUGIN_MCP_PERMS[media]="mcp__plugin_media-plugin_mermaid mcp__plugin_media-plugin_media-playwright mcp__plugin_media-plugin_media-mcp mcp__plugin_media-plugin_ElevenLabs"
-PLUGIN_MCP_PERMS[web-design]="mcp__plugin_web-design-plugin_webdesign-playwright"
 PLUGIN_MCP_PERMS[company]="mcp__plugin_company-plugin_dhl-api-assistant mcp__plugin_company-plugin_stripe"
 
-# Plugin dependencies: web-design requires design, media, office; design requires media, office
+# Plugin dependencies: design requires media and office
 declare -A PLUGIN_DEPS
-PLUGIN_DEPS[web-design]="design media office"
 PLUGIN_DEPS[design]="media office"
 
 # =============================================================================
