@@ -1,0 +1,38 @@
+{
+  "name": "office-plugin",
+  "version": "5.0.1",
+  "description": "Office document generation plugin for PPTX, DOCX, and XLSX workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "pptx",
+    "docx",
+    "xlsx",
+    "office"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Office Plugin",
+    "shortDescription": "Professional office document workflows.",
+    "longDescription": "Provides Codex skills and scripts for PowerPoint, Word, and Excel generation and editing workflows.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Documentation",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Create a slide deck outline from these notes.",
+      "Generate a DOCX report structure for this project.",
+      "Build an XLSX model for this dataset."
+    ],
+    "brandColor": "#0F766E"
+  }
+}

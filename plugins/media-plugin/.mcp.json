@@ -9,7 +9,7 @@
         "GEMINI_API_KEY": "${GEMINI_API_KEY}",
         "MEDIA_OUTPUT_DIR": "${MEDIA_OUTPUT_DIR}"
       },
-      "description": "AI-powered media generation (image, video, music, speech) via Google Gemini"
+      "description": "AI-powered media generation via Google Gemini"
     },
     "ElevenLabs": {
       "command": "uvx",
@@ -20,6 +20,18 @@
         "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}"
       },
       "description": "Text-to-speech, voice cloning, and audio tools via ElevenLabs"
+    },
+    "mermaid": {
+      "url": "https://mcp.mermaidchart.com/mcp",
+      "description": "Mermaid diagram generation for architecture and documentation"
+    },
+    "media-playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ],
+      "description": "Browser automation for rendering D3.js charts and capturing screenshots"
     }
   }
 }

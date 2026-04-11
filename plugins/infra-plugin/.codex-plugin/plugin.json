@@ -1,6 +1,6 @@
 {
   "name": "infra-plugin",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Infrastructure plugin for Kubernetes, Istio, Helm, Terraform, Traefik, and auth workflows.",
   "author": {
     "name": "Lukas Kellerstein",

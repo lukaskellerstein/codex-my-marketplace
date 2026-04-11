@@ -1,7 +1,7 @@
 {
   "name": "dev-tools-plugin",
-  "version": "0.1.0",
-  "description": "Developer workflow plugin for git, dead-code analysis, dependency updates, and spec sync tasks.",
+  "version": "1.2.1",
+  "description": "Developer workflow plugin for git, dead-code analysis, dependency updates, spec sync, and documentation maintenance tasks.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -14,13 +14,13 @@
     "developer-tools",
     "git",
     "dependencies",
-    "specs"
+    "docs"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Dev Tools Plugin",
     "shortDescription": "Reusable developer workflow skills.",
-    "longDescription": "Adds Codex skills and specialist agents for pull requests, dead-code analysis, dependency updates, and spec synchronization.",
+    "longDescription": "Adds Codex skills and specialist agents for pull requests, dead-code analysis, dependency updates, spec synchronization, and documentation updates.",
     "developerName": "Lukas Kellerstein",
     "category": "Productivity",
     "capabilities": [
@@ -31,7 +31,7 @@
     "defaultPrompt": [
       "Review this repo for dead code and explain the safe removals.",
       "Update dependencies in this project and note any breaking changes.",
-      "Prepare a PR plan for the changes in my current branch."
+      "Update the project docs to match the current implementation."
     ],
     "brandColor": "#2563EB"
   }

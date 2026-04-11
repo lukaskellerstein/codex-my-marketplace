@@ -1,0 +1,38 @@
+{
+  "name": "paperclip-plugin",
+  "version": "3.0.6",
+  "description": "AI company planning plugin for Paperclip-style company, agent, and infrastructure design workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "paperclip",
+    "agents",
+    "company",
+    "planning"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Paperclip Plugin",
+    "shortDescription": "Plan AI companies, roles, and infrastructure.",
+    "longDescription": "Adds Codex workflows for company design, work planning, and infrastructure planning based on the Paperclip agent company model.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Automation",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Design an AI company structure for this product idea.",
+      "Create a work plan for these agents and responsibilities.",
+      "Plan the infrastructure needed for this autonomous system."
+    ],
+    "brandColor": "#F97316"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "media-plugin",
-  "version": "0.1.0",
-  "description": "Media generation plugin for images, video, music, speech, sourcing, and icon lookup workflows.",
+  "version": "1.5.1",
+  "description": "Media generation plugin for images, video, music, speech, SVG, sourcing, and visualization workflows.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -14,14 +14,16 @@
     "media",
     "images",
     "video",
-    "speech"
+    "speech",
+    "graphs",
+    "svg"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Media Plugin",
     "shortDescription": "Generate or source media assets for projects.",
-    "longDescription": "Provides Codex workflows for image generation, stock sourcing, icon lookup, music generation, video generation, and speech creation.",
+    "longDescription": "Provides Codex workflows for image generation, stock sourcing, icon lookup, SVG craft, chart and diagram generation, music generation, video generation, and speech creation.",
     "developerName": "Lukas Kellerstein",
     "category": "Media",
     "capabilities": [
@@ -31,8 +33,8 @@
     ],
     "defaultPrompt": [
       "Create image prompts for this landing page.",
-      "Find icon options for this product UI.",
-      "Generate a narration plan for this demo video."
+      "Generate a chart or diagram for this documentation.",
+      "Create a narration plan for this demo video."
     ],
     "brandColor": "#DC2626"
   }

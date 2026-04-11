@@ -1,6 +1,6 @@
 {
   "name": "web-design-plugin",
-  "version": "0.1.0",
+  "version": "1.5.10",
   "description": "End-to-end web design plugin for Codex, from design docs to implementation and visual iteration.",
   "author": {
     "name": "Lukas Kellerstein",

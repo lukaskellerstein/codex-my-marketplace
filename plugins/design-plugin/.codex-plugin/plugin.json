@@ -1,7 +1,7 @@
 {
   "name": "design-plugin",
-  "version": "0.1.0",
-  "description": "Creative direction plugin for styleguides, frontend aesthetics, design systems, and design review workflows.",
+  "version": "1.1.1",
+  "description": "Design direction plugin for styleguides, aesthetics, prompt craft, design systems, and review workflows.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Design Plugin",
     "shortDescription": "Design direction and UI taste workflows.",
-    "longDescription": "Adds Codex skills and agents for design systems, visual direction, frontend aesthetics, prompt craft, and design review.",
+    "longDescription": "Adds Codex skills and agents for styleguides, frontend aesthetics, prompt craft, design systems, and design review.",
     "developerName": "Lukas Kellerstein",
     "category": "Design",
     "capabilities": [

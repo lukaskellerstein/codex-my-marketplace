@@ -1,27 +1,36 @@
 # codex-my-marketplace
 
-A Codex plugin marketplace containing reusable plugins, skills, agents, commands, and hooks for software delivery, design, documentation, media, and infrastructure work.
+A Codex plugin marketplace containing the same plugin families, skills, and agent content as `claude-my-marketplace`, packaged for Codex plugin manifests and marketplace metadata.
+
+This marketplace bundles **8 plugins** covering business operations, developer workflows, office documents, infrastructure, media generation, design, web design, and AI company planning.
 
 ## Repository Layout
 
-- `.agents/plugins/marketplace.json` defines the marketplace catalog for Codex.
+- `.agents/plugins/marketplace.json` defines the Codex marketplace catalog.
 - `plugins/<plugin-name>/` contains each plugin implementation.
 - `plugins/<plugin-name>/.codex-plugin/plugin.json` contains the Codex plugin manifest for that plugin.
+- `plugins/<plugin-name>/.mcp.json` contains plugin MCP server definitions when required.
 
 ## Plugins
 
+### [company-plugin](plugins/company-plugin)
+
+Business operations workflows for Stripe payments and Zasilkovna shipping.
+
+- Skills: `stripe`, `zasilkovna`
+
 ### [dev-tools-plugin](plugins/dev-tools-plugin)
 
-General developer tooling for git workflows, dependency management, dead-code analysis, and spec synchronization.
+Developer tooling for git workflows, dependency updates, dead-code analysis, spec synchronization, and documentation maintenance.
 
-- Skills: `git-pr`, `dead-code`, `update-dependencies`, `sync-spec-kit`
+- Skills: `git-pr`, `dead-code`, `update-dependencies`, `sync-spec-kit`, `update-docs`, `update-feature-docs`, `update-readme`
 - Agents: `dead-code-analyzer`, `sync-spec-kit-agent`
 
-### [documentation-plugin](plugins/documentation-plugin)
+### [office-plugin](plugins/office-plugin)
 
-Documentation and Office document workflows for diagrams, graphs, and professional DOCX, PPTX, and XLSX output.
+Office document generation for PowerPoint, Word, and Excel deliverables.
 
-- Skills: `update-docs`, `update-feature-docs`, `update-readme`, `graph-generation`, `pptx`, `docx`, `xlsx`
+- Skills: `pptx`, `docx`, `xlsx`
 
 ### [infra-plugin](plugins/infra-plugin)
 
@@ -31,9 +40,9 @@ Infrastructure management for Kubernetes, Istio, Helm, Terraform, Traefik, and a
 
 ### [media-plugin](plugins/media-plugin)
 
-AI-assisted media workflows for images, icons, music, speech, sourcing, and video generation.
+AI-assisted media workflows for images, icons, music, speech, sourcing, SVG craft, charts, graphs, diagrams, and video generation.
 
-- Skills: `image-generation`, `image-sourcing`, `video-generation`, `music-generation`, `speech-generation`, `icon-library`
+- Skills: `image-generation`, `image-sourcing`, `video-generation`, `music-generation`, `speech-generation`, `icon-library`, `graph-generation`, `svg-mastery`
 - Agents: `media-director`
 - Commands: `media-assets`, `media-generate`
 
@@ -47,28 +56,32 @@ Creative direction and design quality workflows for styleguides, aesthetics, med
 
 ### [web-design-plugin](plugins/web-design-plugin)
 
-End-to-end website and webapp design workflow for Codex, from brief to implementation, with documentation, scaffold generation, parallel page building, and visual iteration.
+End-to-end website and webapp design workflow for Codex, from brief to implementation, with documentation, scaffold generation, page building, and visual iteration.
 
 - Skills: `animation-system`, `page-architecture`, `css-architecture`, `variation`
 - Agents: `design-doc-foundation`, `design-doc-animation`, `design-doc-data`, `design-doc-media`, `design-doc-pages`, `scaffold-builder`, `page-builder`, `assembler`, `variation-generator`, `visual-fixer-page`, `visual-fixer-app`
 - Commands: `web-design`, `hook-test`
 - Hooks: yes
 
+### [paperclip-plugin](plugins/paperclip-plugin)
+
+AI company planning workflows for Paperclip-style company design, work planning, and infrastructure planning.
+
+- Skills: `company`, `work-planning`, `infrastructure-planning`
+- Agents: `agent-creator`, `skill-creator`, `subagent-creator`
+
 ## Environment Variables
 
-This repository currently defines plugin runtime environment variables only for `media-plugin`.
+Plugin runtime environment variables are currently required for `company-plugin` and `media-plugin`.
 
-### dev-tools-plugin
+### company-plugin
 
-No plugin-specific environment variables are currently required.
+The `company-plugin` reads these variables from [`plugins/company-plugin/.mcp.json`](plugins/company-plugin/.mcp.json):
 
-### documentation-plugin
-
-No plugin-specific environment variables are currently required.
-
-### infra-plugin
-
-No plugin-specific environment variables are currently required.
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `STRIPE_SECRET_KEY` | Yes | Required by the Stripe MCP server for payments, subscriptions, invoicing, and related operations. |
+| `ZASILKOVNA_API_KEY` | Skill-dependent | Used by the Zasilkovna skill when calling the shipping API from its helper scripts. |
 
 ### media-plugin
 
@@ -78,83 +91,7 @@ The `media-plugin` reads these variables from [`plugins/media-plugin/.mcp.json`]
 | --- | --- | --- |
 | `GEMINI_API_KEY` | Yes | Required by the `media-mcp` server for image, video, and music generation workflows. |
 | `ELEVENLABS_API_KEY` | Optional | Required when using ElevenLabs-backed speech and voice features. |
-| `MEDIA_OUTPUT_DIR` | Recommended | Directory where generated or downloaded media files should be written. If unset, some workflows fall back to the current directory or return large base64 payloads instead of file paths. |
-
-#### macOS and Linux
-
-Temporary for the current terminal session:
-
-```bash
-export GEMINI_API_KEY="your-gemini-api-key"
-export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
-export MEDIA_OUTPUT_DIR="$HOME/media-output"
-```
-
-Persistent for future `zsh` sessions:
-
-```bash
-echo 'export GEMINI_API_KEY="your-gemini-api-key"' >> ~/.zshrc
-echo 'export ELEVENLABS_API_KEY="your-elevenlabs-api-key"' >> ~/.zshrc
-echo 'export MEDIA_OUTPUT_DIR="$HOME/media-output"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-Persistent for future `bash` sessions:
-
-```bash
-echo 'export GEMINI_API_KEY="your-gemini-api-key"' >> ~/.bashrc
-echo 'export ELEVENLABS_API_KEY="your-elevenlabs-api-key"' >> ~/.bashrc
-echo 'export MEDIA_OUTPUT_DIR="$HOME/media-output"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-#### Windows PowerShell
-
-Temporary for the current PowerShell session:
-
-```powershell
-$env:GEMINI_API_KEY = "your-gemini-api-key"
-$env:ELEVENLABS_API_KEY = "your-elevenlabs-api-key"
-$env:MEDIA_OUTPUT_DIR = "$HOME\media-output"
-```
-
-Persistent for future PowerShell sessions:
-
-```powershell
-[System.Environment]::SetEnvironmentVariable("GEMINI_API_KEY", "your-gemini-api-key", "User")
-[System.Environment]::SetEnvironmentVariable("ELEVENLABS_API_KEY", "your-elevenlabs-api-key", "User")
-[System.Environment]::SetEnvironmentVariable("MEDIA_OUTPUT_DIR", "$HOME\media-output", "User")
-```
-
-After setting persistent values, open a new terminal session.
-
-#### Windows Command Prompt
-
-Temporary for the current Command Prompt session:
-
-```cmd
-set GEMINI_API_KEY=your-gemini-api-key
-set ELEVENLABS_API_KEY=your-elevenlabs-api-key
-set MEDIA_OUTPUT_DIR=%USERPROFILE%\media-output
-```
-
-Persistent for future Command Prompt sessions:
-
-```cmd
-setx GEMINI_API_KEY "your-gemini-api-key"
-setx ELEVENLABS_API_KEY "your-elevenlabs-api-key"
-setx MEDIA_OUTPUT_DIR "%USERPROFILE%\media-output"
-```
-
-After `setx`, open a new terminal session before using the plugin.
-
-### design-plugin
-
-No plugin-specific environment variables are currently required.
-
-### web-design-plugin
-
-No plugin-specific environment variables are currently required.
+| `MEDIA_OUTPUT_DIR` | Recommended | Directory where generated or downloaded media files should be written. |
 
 ## Marketplace Metadata
 
@@ -168,5 +105,5 @@ Each plugin listed there resolves to `./plugins/<plugin-name>` and contains its 
 
 ## Notes
 
-- This repository is the Codex adaptation of the original `claude-my-marketplace` content.
-- Source prompts, skills, and orchestration files were carried over into the Codex plugin structure and indexed through local marketplace metadata.
+- This repository now mirrors the Claude marketplace plugin set for Codex.
+- The old `documentation-plugin` split has been retired in favor of the original Claude layout: office skills live in `office-plugin`, documentation update skills live in `dev-tools-plugin`, and graph/diagram media skills live in `media-plugin`.

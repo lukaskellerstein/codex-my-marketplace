@@ -1,0 +1,39 @@
+{
+  "name": "company-plugin",
+  "version": "1.1.0",
+  "description": "Business operations plugin for Stripe payments and Zasilkovna shipping workflows.",
+  "author": {
+    "name": "Lukas Kellerstein",
+    "url": "https://github.com/lukaskellerstein"
+  },
+  "homepage": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "repository": "https://github.com/lukaskellerstein/codex-my-marketplace",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "stripe",
+    "payments",
+    "shipping",
+    "zasilkovna"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Company Plugin",
+    "shortDescription": "Business operations skills for payments and shipping.",
+    "longDescription": "Adds Codex workflows for Stripe integrations and Zasilkovna shipping operations used in commerce and business tooling.",
+    "developerName": "Lukas Kellerstein",
+    "category": "Business",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Set up Stripe billing flows for this product.",
+      "Integrate Zasilkovna shipping into this backend.",
+      "Review our payment and fulfillment automation."
+    ],
+    "brandColor": "#DC2626"
+  }
+}

@@ -5,6 +5,18 @@
   },
   "plugins": [
     {
+      "name": "company-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/company-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Business"
+    },
+    {
       "name": "dev-tools-plugin",
       "source": {
         "source": "local",
@@ -17,10 +29,10 @@
       "category": "Productivity"
     },
     {
-      "name": "documentation-plugin",
+      "name": "office-plugin",
       "source": {
         "source": "local",
-        "path": "./plugins/documentation-plugin"
+        "path": "./plugins/office-plugin"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -39,18 +51,6 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Infrastructure"
-    },
-    {
-      "name": "figma-plugin",
-      "source": {
-        "source": "local",
-        "path": "./plugins/figma-plugin"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Design"
     },
     {
       "name": "media-plugin",
@@ -87,6 +87,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Web Development"
+    },
+    {
+      "name": "paperclip-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/paperclip-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Automation"
     }
   ]
 }
