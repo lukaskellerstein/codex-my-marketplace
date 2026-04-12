@@ -2,7 +2,7 @@
 
 Runtime config is split into two scopes: global (all agents) and per-agent.
 
-Claude Code resolves settings in layers: user-level (global) is the baseline, project-level (per-agent) overrides specific fields.
+Codex resolves plugin state in layers: the Codex home (`~/.codex` or `/paperclip/.codex` in Docker) holds the shared cache and `config.toml`, while the per-agent runtime config controls which plugins and permissions are active for that agent.
 
 ## Global Config (`global/`)
 
@@ -33,18 +33,18 @@ Marketplace and plugin installation. Installs binaries globally so any agent can
 {
   "marketplaces": [
     {
-      "source": "lukaskellerstein/claude-my-marketplace",
+      "source": "lukaskellerstein/codex-my-marketplace",
       "scope": "user"
     }
   ],
   "plugins": [
-    { "name": "dev-tools-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "office-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "infra-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "media-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "design-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "web-design-plugin@claude-my-marketplace", "scope": "user" },
-    { "name": "company-plugin@claude-my-marketplace", "scope": "user" }
+    { "name": "dev-tools-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "office-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "infra-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "media-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "design-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "web-design-plugin@codex-my-marketplace", "scope": "user" },
+    { "name": "company-plugin@codex-my-marketplace", "scope": "user" }
   ]
 }
 ```
@@ -60,8 +60,8 @@ Controls which globally-installed plugins are active for this agent.
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true,
-    "design-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true,
+    "design-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -99,7 +99,7 @@ MCP tools must also be allowed in `runtime/settings.json` permissions.
 
 ### `runtime/agents/*.md` (Subagents)
 
-Claude Code subagent definitions. Discovered from `<cwd>/.claude/agents/`.
+Codex subagent definitions. Discovered from the active Codex runtime state.
 
 Source: `agents/{slug}/runtime/agents/*.md`
 Deployed to: `<workspace>/.claude/agents/*.md`
@@ -131,6 +131,6 @@ Use subagents for quick in-session tasks (review, test, search). Use Paperclip t
 | `web-design-plugin` | End-to-end website/webapp design, visual testing. Depends on: design-plugin, media-plugin | Playwright |
 | `company-plugin` | Shipping (Zasilkovna, DHL), payments (Stripe) | DHL API Assistant, Stripe |
 
-Plugin names in `enabledPlugins` use: `{name}@claude-my-marketplace`
+Plugin names in `enabledPlugins` use: `{name}@codex-my-marketplace`
 
 **Dependencies:** `web-design-plugin` depends on `design-plugin`, which depends on `media-plugin` and `office-plugin`. Enable dependencies too.

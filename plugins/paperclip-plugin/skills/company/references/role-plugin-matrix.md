@@ -202,9 +202,9 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true,
-    "office-plugin@claude-my-marketplace": true,
-    "media-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true,
+    "office-plugin@codex-my-marketplace": true,
+    "media-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -220,10 +220,10 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true,
-    "office-plugin@claude-my-marketplace": true,
-    "media-plugin@claude-my-marketplace": true,
-    "infra-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true,
+    "office-plugin@codex-my-marketplace": true,
+    "media-plugin@codex-my-marketplace": true,
+    "infra-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -239,9 +239,9 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "office-plugin@claude-my-marketplace": true,
-    "media-plugin@claude-my-marketplace": true,
-    "design-plugin@claude-my-marketplace": true
+    "office-plugin@codex-my-marketplace": true,
+    "media-plugin@codex-my-marketplace": true,
+    "design-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -259,8 +259,8 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true,
-    "infra-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true,
+    "infra-plugin@codex-my-marketplace": true
   }
 }
 ```
@@ -270,9 +270,9 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true,
-    "design-plugin@claude-my-marketplace": true,
-    "web-design-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true,
+    "design-plugin@codex-my-marketplace": true,
+    "web-design-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -288,9 +288,9 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "office-plugin@claude-my-marketplace": true,
-    "media-plugin@claude-my-marketplace": true,
-    "design-plugin@claude-my-marketplace": true
+    "office-plugin@codex-my-marketplace": true,
+    "media-plugin@codex-my-marketplace": true,
+    "design-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -308,7 +308,7 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "dev-tools-plugin@claude-my-marketplace": true
+    "dev-tools-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [
@@ -323,8 +323,8 @@ Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
 ```json
 {
   "enabledPlugins": {
-    "office-plugin@claude-my-marketplace": true,
-    "company-plugin@claude-my-marketplace": true
+    "office-plugin@codex-my-marketplace": true,
+    "company-plugin@codex-my-marketplace": true
   },
   "permissions": {
     "allow": [

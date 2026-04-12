@@ -121,10 +121,12 @@ gws_skills_for_role() {
 # Plugin -> MCP permissions
 declare -A PLUGIN_MCP_PERMS
 PLUGIN_MCP_PERMS[media-plugin]="mcp__plugin_media-plugin_mermaid mcp__plugin_media-plugin_media-playwright mcp__plugin_media-plugin_media-mcp mcp__plugin_media-plugin_ElevenLabs"
+PLUGIN_MCP_PERMS[web-design-plugin]="mcp__plugin_web-design-plugin_webdesign-playwright"
 PLUGIN_MCP_PERMS[company-plugin]="mcp__plugin_company-plugin_dhl-api-assistant mcp__plugin_company-plugin_stripe"
 
 # Plugin dependencies
 declare -A PLUGIN_DEPS
+PLUGIN_DEPS[web-design-plugin]="design-plugin media-plugin office-plugin"
 PLUGIN_DEPS[design-plugin]="media-plugin office-plugin"
 
 # Built-in skills that should NOT be in frontmatter
@@ -490,8 +492,8 @@ for slug in "${AGENT_SLUGS[@]}"; do
   # Check enabledPlugins format
   enabled=$(jq -r '.enabledPlugins // {} | keys[]' "$settings" 2>/dev/null)
   for plugin_key in $enabled; do
-    if ! echo "$plugin_key" | grep -qE '^[a-z-]+-plugin@claude-my-marketplace$'; then
-      error "plugin-assignment" "$slug: invalid plugin format '$plugin_key' (expected: {name}-plugin@claude-my-marketplace)"
+    if ! echo "$plugin_key" | grep -qE '^[a-z-]+-plugin@codex-my-marketplace$'; then
+      error "plugin-assignment" "$slug: invalid plugin format '$plugin_key' (expected: {name}-plugin@codex-my-marketplace)"
     fi
 
     # Check global/plugins.json has it
@@ -522,7 +524,7 @@ for slug in "${AGENT_SLUGS[@]}"; do
     plugin_name=$(echo "$plugin_key" | sed 's/@.*//')
     if [ -n "${PLUGIN_DEPS[$plugin_name]:-}" ]; then
       for dep in ${PLUGIN_DEPS[$plugin_name]}; do
-        dep_key="${dep}@claude-my-marketplace"
+        dep_key="${dep}@codex-my-marketplace"
         if ! echo "$enabled" | grep -q "^${dep_key}$"; then
           error "plugin-deps" "$slug: $plugin_name requires $dep but it's not enabled"
         fi
@@ -672,6 +674,7 @@ for task_md in "$COMPANY_ROOT/projects"/*/tasks/*/TASK.md; do
 
   fm_project=$(extract_frontmatter_field "$task_md" "project")
   fm_assignee=$(extract_frontmatter_field "$task_md" "assignee")
+  fm_priority=$(extract_frontmatter_field "$task_md" "priority")
 
   if [ -n "$fm_project" ]; then
     ok "task-structure" "$task_path: has project"
@@ -683,6 +686,16 @@ for task_md in "$COMPANY_ROOT/projects"/*/tasks/*/TASK.md; do
     ok "task-structure" "$task_path: has assignee ($fm_assignee)"
   else
     error "task-structure" "$task_path: missing 'assignee' in frontmatter"
+  fi
+
+  if [ -n "$fm_priority" ]; then
+    if echo "$fm_priority" | grep -qE '^(critical|high|medium|low)$'; then
+      ok "task-structure" "$task_path: has valid priority ($fm_priority)"
+    else
+      error "task-structure" "$task_path: invalid priority '$fm_priority' — must be critical, high, medium, or low"
+    fi
+  else
+    error "task-structure" "$task_path: missing 'priority' in frontmatter (use critical, high, medium, or low)"
   fi
 done
 
@@ -742,7 +755,7 @@ if [ -n "$ALL_TASK_NUMBERS" ]; then
   done
 fi
 
-# Top-level tasks should NOT have project field
+# Top-level tasks should NOT have project field, and must have valid priority
 for task_md in "$COMPANY_ROOT/tasks"/*/TASK.md; do
   [ ! -f "$task_md" ] && continue
   task_path="${task_md#$COMPANY_ROOT/}"
@@ -750,6 +763,17 @@ for task_md in "$COMPANY_ROOT/tasks"/*/TASK.md; do
   fm_project=$(extract_frontmatter_field "$task_md" "project")
   if [ -n "$fm_project" ]; then
     warn "task-structure" "$task_path: top-level task has 'project' field (should be under projects/ instead)"
+  fi
+
+  fm_priority=$(extract_frontmatter_field "$task_md" "priority")
+  if [ -n "$fm_priority" ]; then
+    if echo "$fm_priority" | grep -qE '^(critical|high|medium|low)$'; then
+      ok "task-structure" "$task_path: has valid priority ($fm_priority)"
+    else
+      error "task-structure" "$task_path: invalid priority '$fm_priority' — must be critical, high, medium, or low"
+    fi
+  else
+    error "task-structure" "$task_path: missing 'priority' in frontmatter (use critical, high, medium, or low)"
   fi
 done
 

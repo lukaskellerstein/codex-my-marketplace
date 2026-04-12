@@ -16,10 +16,10 @@ A company package follows the Agent Companies specification (`agentcompanies/v1`
 │       ├── HEARTBEAT.md                # Heartbeat execution protocol
 │       ├── SOUL.md                     # Personality and voice
 │       ├── TOOLS.md                    # Agent tool reference — plugins, MCP servers, usage guidelines
-│       └── runtime/                    # Per-agent Claude Code runtime config
+│       └── runtime/                    # Per-agent Codex runtime config
 │           ├── settings.json           # Permissions, enabledPlugins, env vars
 │           ├── mcp.json                # MCP server definitions
-│           └── agents/                 # Claude Code subagent definitions
+│           └── agents/                 # Codex subagent definitions
 │               └── *.md
 ├── projects/
 │   └── {project-slug}/
@@ -33,7 +33,7 @@ A company package follows the Agent Companies specification (`agentcompanies/v1`
 ├── scripts/
 │   └── setup-secrets.sh                # Post-import script to create company secrets via API
 ├── global/                             # Shared runtime config (all agents)
-│   ├── settings.json                   # Global Claude Code settings (baseline)
+│   ├── settings.json                   # Global Codex bootstrap settings (baseline)
 │   └── plugins.json                    # Marketplace and plugin installation
 ├── .paperclip.yaml                     # Vendor extension (adapter, budget, env)
 ├── README.md                           # Setup guide and org overview
@@ -158,11 +158,11 @@ Body contains the task description.
 
 | Source (in package) | Destination (in container) | Scope |
 |---|---|---|
-| `global/settings.json` | `/paperclip/.claude/settings.json` | All agents |
-| `global/plugins.json` | `/docker-init/claude/plugins.json` | All agents |
-| `agents/{slug}/runtime/settings.json` | `<workspace>/.claude/settings.json` | One agent |
+| `global/settings.json` | `/paperclip/.codex/config.toml` or bootstrap defaults | All agents |
+| `global/plugins.json` | `/docker-init/codex/plugins.json` | All agents |
+| `agents/{slug}/runtime/settings.json` | Agent runtime plugin/permission config | One agent |
 | `agents/{slug}/runtime/mcp.json` | `<workspace>/.mcp.json` | One agent |
-| `agents/{slug}/runtime/agents/*.md` | `<workspace>/.claude/agents/*.md` | One agent |
+| `agents/{slug}/runtime/agents/*.md` | Codex subagent definitions | One agent |
 
 Where `<workspace>` is `/paperclip/instances/default/workspaces/{agentId}/`.
 
@@ -170,5 +170,5 @@ Where `<workspace>` is `/paperclip/instances/default/workspaces/{agentId}/`.
 
 The `global/` files are NOT imported via the company import API. They must be placed in the Paperclip repo and mounted into the Docker container:
 
-1. Copy `global/settings.json` and `global/plugins.json` into `.company/claude/` in the Paperclip repo root
+1. Copy `global/settings.json` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
 2. Rebuild/restart the container (the volume mount is already configured in docker-compose.yml)

@@ -130,6 +130,7 @@ Note: `generate-plan.sh` assigns global ordering automatically — the `order` f
 | `name` | Yes | Human-readable task name |
 | `assignee` | Optional | Agent slug (assigned after org design, required before generation) |
 | `project` | Yes (project tasks + all recurring tasks) | Parent project slug |
+| `priority` | Yes | `critical`, `high`, `medium`, or `low` — choose based on actual importance, not every task is medium. Infrastructure setup and blocking work should be `high` or `critical`; nice-to-haves and research tasks should be `low`. |
 | `recurring` | No | `true` for ongoing work — task MUST be inside a project |
 
 ### Task Organization Rules
@@ -186,6 +187,7 @@ After the user confirms goals, projects, and tasks, write a `._planning.json` fi
           "slug": "setup-project",
           "name": "Set up FastAPI project structure",
           "assignee": "backend-engineer",
+          "priority": "critical",
           "body": "Initialize the FastAPI project with directory structure, dependencies, and Docker setup.",
           "recurring": false
         },
@@ -193,6 +195,7 @@ After the user confirms goals, projects, and tasks, write a `._planning.json` fi
           "slug": "build-auth",
           "name": "Implement user authentication",
           "assignee": "backend-engineer",
+          "priority": "high",
           "body": "Implement JWT-based auth with email/password registration, login, and password reset.",
           "recurring": false
         },
@@ -200,6 +203,7 @@ After the user confirms goals, projects, and tasks, write a `._planning.json` fi
           "slug": "strategic-review",
           "name": "Weekly strategic review",
           "assignee": "ceo",
+          "priority": "medium",
           "body": "Review company progress against goals. Check blocked tasks, reassign if needed.",
           "recurring": true
         }
@@ -212,7 +216,7 @@ After the user confirms goals, projects, and tasks, write a `._planning.json` fi
 
 Then run the generation script:
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/generate-plan.sh <company-root> <company-root>/._planning.json
+bash ../../scripts/generate-plan.sh <company-root> <company-root>/._planning.json
 ```
 
 This creates all `goals/`, `projects/`, and `tasks/` directories with proper frontmatter, ordering prefixes, and cross-references.

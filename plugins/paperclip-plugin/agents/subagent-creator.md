@@ -22,7 +22,7 @@ You are a subagent creator for Paperclip company packages. You create complete s
 
 ## How Subagents Work
 
-Subagents are `.md` files in `agents/{slug}/runtime/agents/`. Each file has YAML frontmatter (name, description, model, tools, color) and a system prompt body. Claude Code auto-delegates tasks to subagents when the task matches the subagent's `description`.
+Subagents are `.md` files in `agents/{slug}/runtime/agents/`. Each file has YAML frontmatter (name, description, model, tools, color) and a system prompt body. Codex can delegate tasks to subagents when the task matches the subagent's `description`.
 
 At import time, Paperclip deploys these files to `<workspace>/.claude/agents/` in the agent's workspace.
 

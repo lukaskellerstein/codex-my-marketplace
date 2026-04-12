@@ -381,6 +381,7 @@ for project_slug in $(jq -r '.tasks.projects // {} | keys[]' "$PLANNING_JSON" 2>
     t_name=$(jq -r ".tasks.projects[\"$project_slug\"][$i].name" "$PLANNING_JSON")
     t_assignee=$(jq -r ".tasks.projects[\"$project_slug\"][$i].assignee" "$PLANNING_JSON")
     t_body=$(jq -r ".tasks.projects[\"$project_slug\"][$i].body // empty" "$PLANNING_JSON")
+    t_priority=$(jq -r ".tasks.projects[\"$project_slug\"][$i].priority // \"medium\"" "$PLANNING_JSON")
     t_recurring=$(jq -r ".tasks.projects[\"$project_slug\"][$i].recurring // false" "$PLANNING_JSON")
 
     # Use global counter for ordering prefix
@@ -399,6 +400,7 @@ for project_slug in $(jq -r '.tasks.projects // {} | keys[]' "$PLANNING_JSON" 2>
         echo "assignee: ${t_assignee}"
       fi
       echo "project: ${project_slug}"
+      echo "priority: ${t_priority}"
       if [ "$t_recurring" = "true" ]; then
         echo "recurring: true"
       fi
@@ -423,6 +425,7 @@ for ((i = 0; i < CL_TASK_COUNT; i++)); do
   t_name=$(jq -r ".tasks.companyLevel[$i].name" "$PLANNING_JSON")
   t_assignee=$(jq -r ".tasks.companyLevel[$i].assignee" "$PLANNING_JSON")
   t_body=$(jq -r ".tasks.companyLevel[$i].body // empty" "$PLANNING_JSON")
+  t_priority=$(jq -r ".tasks.companyLevel[$i].priority // \"medium\"" "$PLANNING_JSON")
   t_recurring=$(jq -r ".tasks.companyLevel[$i].recurring // false" "$PLANNING_JSON")
 
   # Use global counter for ordering prefix (continues from project tasks)
@@ -445,6 +448,7 @@ for ((i = 0; i < CL_TASK_COUNT; i++)); do
     if [ -n "$t_project" ] && [ "$t_project" != "null" ]; then
       echo "project: ${t_project}"
     fi
+    echo "priority: ${t_priority}"
     if [ "$t_recurring" = "true" ]; then
       echo "recurring: true"
     fi

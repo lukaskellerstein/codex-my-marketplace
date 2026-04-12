@@ -85,10 +85,12 @@ echo "[pre-generate] Agents: $AGENT_COUNT"
 # Plugin -> MCP permissions
 declare -A PLUGIN_MCP_PERMS
 PLUGIN_MCP_PERMS[media]="mcp__plugin_media-plugin_mermaid mcp__plugin_media-plugin_media-playwright mcp__plugin_media-plugin_media-mcp mcp__plugin_media-plugin_ElevenLabs"
+PLUGIN_MCP_PERMS[web-design]="mcp__plugin_web-design-plugin_webdesign-playwright"
 PLUGIN_MCP_PERMS[company]="mcp__plugin_company-plugin_dhl-api-assistant mcp__plugin_company-plugin_stripe"
 
-# Plugin dependencies: design requires media and office
+# Plugin dependencies: web-design requires design, media, office; design requires media, office
 declare -A PLUGIN_DEPS
+PLUGIN_DEPS[web-design]="design media office"
 PLUGIN_DEPS[design]="media office"
 
 # =============================================================================
@@ -222,7 +224,7 @@ for plugin in $ALL_PLUGINS; do
     PLUGINS_JSON="$PLUGINS_JSON,"
   fi
   PLUGINS_JSON="$PLUGINS_JSON
-    {\"name\": \"${plugin}-plugin@claude-my-marketplace\", \"scope\": \"user\"}"
+    {\"name\": \"${plugin}-plugin@codex-my-marketplace\", \"scope\": \"user\"}"
 done
 PLUGINS_JSON="$PLUGINS_JSON
   ]"
@@ -230,7 +232,7 @@ PLUGINS_JSON="$PLUGINS_JSON
 cat > "$COMPANY_ROOT/global/plugins.json" << PLUGINS_EOF
 {
   "marketplaces": [
-    {"source": "lukaskellerstein/claude-my-marketplace", "scope": "user"}
+    {"source": "lukaskellerstein/codex-my-marketplace", "scope": "user"}
   ],
   "plugins": $PLUGINS_JSON
 }
@@ -262,7 +264,7 @@ for i in $(seq 0 $((AGENT_COUNT - 1))); do
   for plugin in $agent_plugins; do
     if $ep_first; then ep_first=false; else ENABLED_PLUGINS="$ENABLED_PLUGINS,"; fi
     ENABLED_PLUGINS="$ENABLED_PLUGINS
-      \"${plugin}-plugin@claude-my-marketplace\": true"
+      \"${plugin}-plugin@codex-my-marketplace\": true"
   done
   ENABLED_PLUGINS="$ENABLED_PLUGINS
     }"

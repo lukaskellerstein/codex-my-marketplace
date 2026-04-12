@@ -20,8 +20,8 @@ If the description is too vague (less than a sentence), ask ONE clarifying quest
 ## Before You Start
 
 Read these references and skills:
-1. **`${CLAUDE_PLUGIN_ROOT}/skills/company/references/role-plugin-matrix.md`** — plugin assignments, MCP permissions, and GWS skills per role. **You MUST read this.**
-2. **`${CLAUDE_PLUGIN_ROOT}/skills/company/references/standard-roles.md`** — catalog of available agent roles
+1. **`references/role-plugin-matrix.md`** — plugin assignments, MCP permissions, and GWS skills per role. **You MUST read this.**
+2. **`references/standard-roles.md`** — catalog of available agent roles
 3. **work-planning** skill — for goals, project scoping, task organization, and `._planning.json` generation
 4. **infrastructure-planning** skill — for GitHub, Docker, K8s, Stripe, and logistics planning
 
@@ -81,13 +81,13 @@ Now that the work is defined, design the team to execute it.
 Propose an org chart with:
 - Agent names, roles, and reporting lines — **informed by the goals, projects, and tasks from Phases 2-3**
 - Monthly budgets per agent
-- Plugin assignments per agent (from `${CLAUDE_PLUGIN_ROOT}/skills/company/references/role-plugin-matrix.md`)
+- Plugin assignments per agent (from `references/role-plugin-matrix.md`)
 - Total monthly cost
 - Per-agent **custom skills** (name + description for each)
 - Per-agent **custom subagents** (name + description for each)
 - GWS settings for eligible roles (email addresses, domain)
 
-Use `${CLAUDE_PLUGIN_ROOT}/skills/company/references/standard-roles.md` as a catalog of available roles.
+Use `references/standard-roles.md` as a catalog of available roles.
 
 **GWS-eligible roles:** CEO, CMO, COO, HeadOfOperations, Content Creator, Marketing Specialist, Product Manager, Customer Support (see `role-plugin-matrix.md`). Only these roles need email addresses.
 
@@ -192,7 +192,7 @@ Ask: "Here's the full plan with assignments. Does everything look right? I'll st
 
 **Step 2:** Run the pre-generation script:
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/pre-generate.sh <company-root> <company-root>/._generation-config.json
+bash ../../scripts/pre-generate.sh <company-root> <company-root>/._generation-config.json
 ```
 
 This creates:
@@ -265,7 +265,7 @@ This creates:
 
 **Step 4:** Run the plan generation script:
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/generate-plan.sh <company-root> <company-root>/._planning.json
+bash ../../scripts/generate-plan.sh <company-root> <company-root>/._planning.json
 ```
 
 This creates all `goals/`, `projects/`, and `tasks/` directories with proper frontmatter, ordering prefixes, and cross-references.
@@ -359,7 +359,7 @@ Agent(subagent_type="paperclip-plugin:subagent-creator", prompt="
 
 **After all files are written** (including the agent results), run the validation script:
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/post-generate.sh <company-root>
+bash ../../scripts/post-generate.sh <company-root>
 ```
 
 **If the script reports ERRORs:** fix each error and re-run the script. Repeat until 0 errors.

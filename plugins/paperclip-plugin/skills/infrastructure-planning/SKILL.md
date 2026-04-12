@@ -125,7 +125,7 @@ This skill helps plan and document all the infrastructure, external services, an
 
 **Agent access via `gws` CLI:**
 - `gws` CLI is pre-installed in the Paperclip container
-- GWS skills (gmail, drive, calendar, sheets, etc.) are pre-installed globally at `/paperclip/.claude/skills/gws-*` — all agents can use them
+- GWS skills (gmail, drive, calendar, sheets, etc.) are pre-installed globally at `/paperclip/.codex/skills/gws-*` — all agents can use them
 - Each company needs a GWS service account JSON key (see the [GWS setup guide](https://github.com/googleworkspace/cli/blob/main/README.md))
 - Place the key at `.company/gws/<company-slug>.json` in the Paperclip repo root
 - It is mounted into the container at `/paperclip/.gws/<company-slug>.json`
@@ -245,7 +245,7 @@ Agents run inside the Paperclip Docker container and have access to:
 
 | Tool | Purpose |
 |------|---------|
-| `claude` | Claude Code CLI |
+| `codex` | Codex CLI |
 | `gh` | GitHub CLI (authenticated via `GH_TOKEN`) |
 | `docker` | Docker CLI (host daemon via mounted socket) |
 | `kubectl` | Kubernetes CLI (host kubeconfig mounted) |
