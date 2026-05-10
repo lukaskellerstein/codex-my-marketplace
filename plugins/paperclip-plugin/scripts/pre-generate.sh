@@ -19,8 +19,8 @@
 #   - GWS skills (imported from googleworkspace/cli repo) if any agent is GWS-eligible
 #   - global/settings.json (deny rules)
 #   - global/plugins.json (union of all agent plugins)
-#   - Per-agent runtime/settings.json (enabledPlugins, permissions, env)
-#   - Per-agent runtime/mcp.json (Chrome DevTools if needed, else empty)
+#   - Per-agent runtime/.codex/config.toml (Codex runtime defaults + MCP server config)
+#   - Per-agent runtime/.codex/agents/ (Codex subagent TOML definitions written later)
 #   - scripts/setup-secrets.sh (customized from template)
 # =============================================================================
 
@@ -147,7 +147,7 @@ mkdir -p "$COMPANY_ROOT"/{projects,tasks,skills,scripts,global}
 
 for i in $(seq 0 $((AGENT_COUNT - 1))); do
   slug=$(jq -r ".agents[$i].slug" "$CONFIG_PATH")
-  mkdir -p "$COMPANY_ROOT/agents/$slug/runtime/agents"
+  mkdir -p "$COMPANY_ROOT/agents/$slug/runtime/.codex/agents"
 done
 
 # =============================================================================
@@ -243,7 +243,7 @@ jq '.' "$COMPANY_ROOT/global/plugins.json" > "$COMPANY_ROOT/global/plugins.json.
   mv "$COMPANY_ROOT/global/plugins.json.tmp" "$COMPANY_ROOT/global/plugins.json"
 
 # =============================================================================
-# Step 5: Generate per-agent runtime/settings.json
+# Step 5: Generate per-agent runtime/.codex/config.toml
 # =============================================================================
 
 echo "[pre-generate] Writing per-agent runtime configs..."
@@ -258,79 +258,45 @@ for i in $(seq 0 $((AGENT_COUNT - 1))); do
   # Expand plugin dependencies for this agent
   agent_plugins=$(expand_plugins "$agent_plugins")
 
-  # Build enabledPlugins object
-  ENABLED_PLUGINS="{"
-  ep_first=true
-  for plugin in $agent_plugins; do
-    if $ep_first; then ep_first=false; else ENABLED_PLUGINS="$ENABLED_PLUGINS,"; fi
-    ENABLED_PLUGINS="$ENABLED_PLUGINS
-      \"${plugin}-plugin@codex-my-marketplace\": true"
-  done
-  ENABLED_PLUGINS="$ENABLED_PLUGINS
-    }"
+  config_toml="$COMPANY_ROOT/agents/$slug/runtime/.codex/config.toml"
+  cat > "$config_toml" << 'SETTINGS_TOML'
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+SETTINGS_TOML
 
-  # Build permissions.allow array
-  PERMS_ITEMS=""
-  for plugin in $agent_plugins; do
-    if [ -n "${PLUGIN_MCP_PERMS[$plugin]:-}" ]; then
-      for perm in ${PLUGIN_MCP_PERMS[$plugin]}; do
-        if [ -n "$PERMS_ITEMS" ]; then PERMS_ITEMS="$PERMS_ITEMS,"; fi
-        PERMS_ITEMS="$PERMS_ITEMS
-        \"$perm\""
-      done
-    fi
-  done
   if [ "$chrome_mcp" = "true" ]; then
-    if [ -n "$PERMS_ITEMS" ]; then PERMS_ITEMS="$PERMS_ITEMS,"; fi
-    PERMS_ITEMS="$PERMS_ITEMS
-        \"mcp__chrome-devtools\""
+    cat >> "$config_toml" << 'CHROME_MCP'
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+CHROME_MCP
   fi
 
-  # Build env object for GWS-eligible agents
-  ENV_SECTION=""
   if is_gws_eligible "$role" && [ -n "$GWS_DOMAIN" ]; then
     agent_email="${email:-${slug}@${GWS_DOMAIN}}"
-    ENV_SECTION=",
-    \"env\": {
-      \"AGENT_EMAIL\": \"$agent_email\",
-      \"COMPANY_DOMAIN\": \"$GWS_DOMAIN\",
-      \"GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE\": \"$GWS_CREDENTIALS_FILE\"
-    }"
+    cat >> "$config_toml" << GWS_COMMENT
+
+# Google Workspace env is applied by Paperclip from .paperclip.yaml or adapter env.
+# Suggested values for this agent:
+# AGENT_EMAIL=$agent_email
+# COMPANY_DOMAIN=$GWS_DOMAIN
+# GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=$GWS_CREDENTIALS_FILE
+GWS_COMMENT
   fi
 
-  # Assemble the full settings.json
-  if [ -n "$PERMS_ITEMS" ]; then
-    SETTINGS_JSON="{
-    \"enabledPlugins\": $ENABLED_PLUGINS,
-    \"permissions\": {
-      \"allow\": [$PERMS_ITEMS
-      ]
-    }$ENV_SECTION
-  }"
-  else
-    SETTINGS_JSON="{
-    \"enabledPlugins\": $ENABLED_PLUGINS$ENV_SECTION
-  }"
+  if [ -n "$agent_plugins" ]; then
+    cat >> "$config_toml" << PLUGIN_COMMENT
+
+# Marketplace plugins are installed globally and assigned by Paperclip metadata.
+# Assigned plugins for this agent:
+PLUGIN_COMMENT
+    for plugin in $agent_plugins; do
+      echo "# - ${plugin}-plugin@codex-my-marketplace" >> "$config_toml"
+    done
   fi
 
-  echo "$SETTINGS_JSON" | jq '.' > "$COMPANY_ROOT/agents/$slug/runtime/settings.json"
-  echo "  $slug: $(echo "$agent_plugins" | wc -w | tr -d ' ') plugins$(is_gws_eligible "$role" && [ -n "$GWS_DOMAIN" ] && echo " + GWS" || true)"
-
-  # ---- runtime/mcp.json ----
-  if [ "$chrome_mcp" = "true" ]; then
-    cat > "$COMPANY_ROOT/agents/$slug/runtime/mcp.json" << 'CHROME_MCP'
-{
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"]
-    }
-  }
-}
-CHROME_MCP
-  else
-    echo '{"mcpServers": {}}' | jq '.' > "$COMPANY_ROOT/agents/$slug/runtime/mcp.json"
-  fi
+  echo "  $slug: native Codex config$(is_gws_eligible "$role" && [ -n "$GWS_DOMAIN" ] && echo " + GWS hints" || true)"
 done
 
 # =============================================================================
@@ -435,13 +401,13 @@ echo "[pre-generate] The AI agent should now write:"
 echo "  - COMPANY.md"
 echo "  - agents/*/AGENTS.md body (append below the frontmatter --- marker)"
 echo "  - agents/*/SOUL.md, HEARTBEAT.md, TOOLS.md"
-echo "  - agents/*/runtime/agents/*.md (custom subagents from design briefs)"
+echo "  - agents/*/runtime/.codex/agents/*.toml (custom subagents from design briefs)"
 echo "  - projects/*/PROJECT.md and tasks"
 echo "  - Custom SKILL.md files in skills/"
 echo "  - .paperclip.yaml, README.md, LICENSE"
 echo ""
 echo "[pre-generate] Do NOT overwrite files this script created:"
 echo "  - agents/*/AGENTS.md frontmatter (skills are already set)"
-echo "  - agents/*/runtime/settings.json, runtime/mcp.json"
+echo "  - agents/*/runtime/.codex/config.toml"
 echo "  - global/settings.json, global/plugins.json"
 echo "  - scripts/setup-secrets.sh"

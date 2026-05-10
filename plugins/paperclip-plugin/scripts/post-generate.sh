@@ -118,17 +118,6 @@ gws_skills_for_role() {
   esac
 }
 
-# Plugin -> MCP permissions
-declare -A PLUGIN_MCP_PERMS
-PLUGIN_MCP_PERMS[media-plugin]="mcp__plugin_media-plugin_mermaid mcp__plugin_media-plugin_media-playwright mcp__plugin_media-plugin_media-mcp mcp__plugin_media-plugin_ElevenLabs"
-PLUGIN_MCP_PERMS[web-design-plugin]="mcp__plugin_web-design-plugin_webdesign-playwright"
-PLUGIN_MCP_PERMS[company-plugin]="mcp__plugin_company-plugin_dhl-api-assistant mcp__plugin_company-plugin_stripe"
-
-# Plugin dependencies
-declare -A PLUGIN_DEPS
-PLUGIN_DEPS[web-design-plugin]="design-plugin media-plugin office-plugin"
-PLUGIN_DEPS[design-plugin]="media-plugin office-plugin"
-
 # Built-in skills that should NOT be in frontmatter
 BUILTIN_SKILLS="paperclip paperclip-create-agent para-memory-files"
 
@@ -139,6 +128,23 @@ BUILTIN_SKILLS="paperclip paperclip-create-agent para-memory-files"
 extract_frontmatter() {
   # Returns the YAML frontmatter (between --- markers) of a markdown file
   sed -n '1{/^---$/!q};1,/^---$/{/^---$/d;p}' "$1" 2>/dev/null
+}
+
+has_frontmatter_at_top() {
+  local file="$1"
+  [ -f "$file" ] || return 1
+  [ "$(head -n 1 "$file" 2>/dev/null)" = "---" ] || return 1
+  awk 'NR > 1 && /^---$/ { found = 1; exit } END { exit found ? 0 : 1 }' "$file" 2>/dev/null
+}
+
+count_body_lines_after_frontmatter() {
+  local file="$1"
+  awk '
+    BEGIN { delimiters = 0; count = 0 }
+    /^---$/ { delimiters++; next }
+    delimiters >= 2 && $0 ~ /[^[:space:]]/ { count++ }
+    END { print count }
+  ' "$file" 2>/dev/null
 }
 
 extract_frontmatter_field() {
@@ -252,10 +258,16 @@ for agent_dir in "$COMPANY_ROOT/agents"/*/; do
     warn "agent-files" "$slug/TOOLS.md is missing"
   fi
 
-  if [ -f "$agent_dir/runtime/settings.json" ]; then
-    ok "agent-files" "$slug/runtime/settings.json exists"
+  if [ -f "$agent_dir/runtime/.codex/config.toml" ]; then
+    ok "agent-files" "$slug/runtime/.codex/config.toml exists"
   else
-    error "agent-files" "$slug/runtime/settings.json is missing"
+    error "agent-files" "$slug/runtime/.codex/config.toml is missing"
+  fi
+
+  if [ -d "$agent_dir/runtime/.codex/agents" ]; then
+    ok "agent-files" "$slug/runtime/.codex/agents exists"
+  else
+    error "agent-files" "$slug/runtime/.codex/agents is missing"
   fi
 done
 
@@ -417,6 +429,12 @@ for slug in "${AGENT_SLUGS[@]}"; do
   fm_title=$(extract_frontmatter_field "$agents_md" "title")
   fm_reports=$(extract_frontmatter "$agents_md" | grep "^reportsTo:" | head -1)
 
+  if has_frontmatter_at_top "$agents_md"; then
+    ok "agent-frontmatter" "$slug: frontmatter is at top of AGENTS.md"
+  else
+    error "agent-frontmatter" "$slug: AGENTS.md does not start with valid top-of-file frontmatter"
+  fi
+
   AGENT_ROLES[$slug]="${fm_title:-$fm_name}"
 
   if [ -n "$fm_name" ]; then
@@ -435,6 +453,30 @@ for slug in "${AGENT_SLUGS[@]}"; do
     ok "agent-frontmatter" "$slug: reportsTo is present"
   else
     error "agent-frontmatter" "$slug: reportsTo is missing in AGENTS.md (use 'null' for CEO)"
+  fi
+done
+
+# =============================================================================
+# Category 4b: Per-agent Codex runtime defaults
+# =============================================================================
+
+echo ""
+echo "=== Checking per-agent runtime defaults ==="
+
+for slug in "${AGENT_SLUGS[@]}"; do
+  config_toml="$COMPANY_ROOT/agents/$slug/runtime/.codex/config.toml"
+  [ ! -f "$config_toml" ] && continue
+
+  if grep -q '^approval_policy[[:space:]]*=' "$config_toml"; then
+    ok "runtime-defaults" "$slug: config.toml defines approval_policy"
+  else
+    error "runtime-defaults" "$slug: config.toml is missing approval_policy"
+  fi
+
+  if grep -q '^sandbox_mode[[:space:]]*=' "$config_toml"; then
+    ok "runtime-defaults" "$slug: config.toml defines sandbox_mode"
+  else
+    error "runtime-defaults" "$slug: config.toml is missing sandbox_mode"
   fi
 done
 
@@ -467,110 +509,42 @@ for slug in "${AGENT_SLUGS[@]}"; do
 done
 
 # =============================================================================
-# Category 6: Plugin assignment & MCP permissions
+# Category 6: Global plugin install config
 # =============================================================================
 
 echo ""
-echo "=== Checking plugin assignments ==="
+echo "=== Checking global plugin config ==="
 
-# Read global plugins list
-GLOBAL_PLUGINS=""
 if [ -f "$COMPANY_ROOT/global/plugins.json" ]; then
-  GLOBAL_PLUGINS=$(jq -r '.plugins[]?.name // empty' "$COMPANY_ROOT/global/plugins.json" 2>/dev/null | tr '\n' ' ')
+  if jq empty "$COMPANY_ROOT/global/plugins.json" 2>/dev/null; then
+    ok "global-plugins" "global/plugins.json is valid JSON"
+    global_plugins=$(jq -r '.plugins[]?.name // empty' "$COMPANY_ROOT/global/plugins.json" 2>/dev/null)
+    for plugin_key in $global_plugins; do
+      if echo "$plugin_key" | grep -qE '^[a-z-]+-plugin@codex-my-marketplace$'; then
+        ok "global-plugins" "plugin '$plugin_key' has valid format"
+      else
+        error "global-plugins" "invalid plugin format '$plugin_key' (expected: {name}-plugin@codex-my-marketplace)"
+      fi
+    done
+  else
+    error "global-plugins" "global/plugins.json is not valid JSON"
+  fi
 fi
 
-for slug in "${AGENT_SLUGS[@]}"; do
-  settings="$COMPANY_ROOT/agents/$slug/runtime/settings.json"
-  [ ! -f "$settings" ] && continue
-
-  # Validate JSON
-  if ! jq empty "$settings" 2>/dev/null; then
-    error "plugin-assignment" "$slug: runtime/settings.json is not valid JSON"
-    continue
-  fi
-
-  # Check enabledPlugins format
-  enabled=$(jq -r '.enabledPlugins // {} | keys[]' "$settings" 2>/dev/null)
-  for plugin_key in $enabled; do
-    if ! echo "$plugin_key" | grep -qE '^[a-z-]+-plugin@codex-my-marketplace$'; then
-      error "plugin-assignment" "$slug: invalid plugin format '$plugin_key' (expected: {name}-plugin@codex-my-marketplace)"
-    fi
-
-    # Check global/plugins.json has it
-    if [ -n "$GLOBAL_PLUGINS" ]; then
-      if ! echo " $GLOBAL_PLUGINS " | grep -q " $plugin_key "; then
-        error "global-plugins" "$slug: plugin '$plugin_key' is enabled but not in global/plugins.json"
-      fi
-    fi
-  done
-
-  # Check MCP permissions for each enabled plugin
-  perms_allow=$(jq -r '.permissions.allow[]? // empty' "$settings" 2>/dev/null | tr '\n' ' ')
-  for plugin_key in $enabled; do
-    plugin_name=$(echo "$plugin_key" | sed 's/@.*//')
-    if [ -n "${PLUGIN_MCP_PERMS[$plugin_name]:-}" ]; then
-      for required_perm in ${PLUGIN_MCP_PERMS[$plugin_name]}; do
-        if echo " $perms_allow " | grep -q " $required_perm "; then
-          ok "plugin-perms" "$slug: has $required_perm for $plugin_name"
-        else
-          error "plugin-perms" "$slug: missing MCP permission '$required_perm' for $plugin_name"
-        fi
-      done
-    fi
-  done
-
-  # Check plugin dependencies
-  for plugin_key in $enabled; do
-    plugin_name=$(echo "$plugin_key" | sed 's/@.*//')
-    if [ -n "${PLUGIN_DEPS[$plugin_name]:-}" ]; then
-      for dep in ${PLUGIN_DEPS[$plugin_name]}; do
-        dep_key="${dep}@codex-my-marketplace"
-        if ! echo "$enabled" | grep -q "^${dep_key}$"; then
-          error "plugin-deps" "$slug: $plugin_name requires $dep but it's not enabled"
-        fi
-      done
-    fi
-  done
-done
-
 # =============================================================================
-# Category 7: GWS consistency
+# Category 7: GWS skill consistency
 # =============================================================================
 
 echo ""
-echo "=== Checking GWS consistency ==="
+echo "=== Checking GWS skill consistency ==="
 
 for slug in "${AGENT_SLUGS[@]}"; do
   role="${AGENT_ROLES[$slug]:-}"
   [ -z "$role" ] && continue
 
-  settings="$COMPANY_ROOT/agents/$slug/runtime/settings.json"
   agents_md="$COMPANY_ROOT/agents/$slug/AGENTS.md"
 
-  has_agent_email=false
-  has_company_domain=false
-  has_gws_creds=false
-
-  if [ -f "$settings" ] && jq empty "$settings" 2>/dev/null; then
-    [ "$(jq -r '.env.AGENT_EMAIL // empty' "$settings" 2>/dev/null)" != "" ] && has_agent_email=true
-    [ "$(jq -r '.env.COMPANY_DOMAIN // empty' "$settings" 2>/dev/null)" != "" ] && has_company_domain=true
-    [ "$(jq -r '.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE // empty' "$settings" 2>/dev/null)" != "" ] && has_gws_creds=true
-  fi
-
-  has_any_gws=$($has_agent_email || $has_company_domain || $has_gws_creds && echo true || echo false)
-  has_all_gws=$($has_agent_email && $has_company_domain && $has_gws_creds && echo true || echo false)
-
   if is_gws_eligible "$role"; then
-    # GWS-eligible: should have all 3 env vars
-    if $has_all_gws; then
-      ok "gws-env" "$slug ($role): has all 3 GWS env vars"
-    elif $has_any_gws; then
-      error "gws-env" "$slug ($role): has some GWS env vars but not all 3 (need AGENT_EMAIL, COMPANY_DOMAIN, GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE)"
-    else
-      error "gws-env" "$slug ($role): GWS-eligible but missing all GWS env vars"
-    fi
-
-    # Check GWS skills in frontmatter
     if [ -f "$agents_md" ]; then
       agent_skills=$(extract_skills_list "$agents_md" | tr '\n' ' ')
       required_gws_skills=$(gws_skills_for_role "$role")
@@ -586,10 +560,7 @@ for slug in "${AGENT_SLUGS[@]}"; do
       fi
     fi
   else
-    # Non-GWS role: should NOT have GWS env vars
-    if $has_any_gws; then
-      warn "gws-env" "$slug ($role): not GWS-eligible but has GWS env vars (remove them)"
-    fi
+    true
   fi
 done
 
@@ -618,6 +589,35 @@ for slug in "${AGENT_SLUGS[@]}"; do
     # Check skill directory exists
     if [ -f "$COMPANY_ROOT/skills/$skill/SKILL.md" ]; then
       ok "skill-files" "$slug: skills/$skill/SKILL.md exists"
+
+      skill_file="$COMPANY_ROOT/skills/$skill/SKILL.md"
+      skill_fm_name=$(extract_frontmatter_field "$skill_file" "name")
+      skill_fm_desc=$(extract_frontmatter_field "$skill_file" "description")
+      skill_body_lines=$(count_body_lines_after_frontmatter "$skill_file")
+
+      if has_frontmatter_at_top "$skill_file"; then
+        ok "skill-format" "$skill: frontmatter is at top of SKILL.md"
+      else
+        error "skill-format" "$skill: SKILL.md does not start with valid top-of-file frontmatter"
+      fi
+
+      if [ "$skill_fm_name" = "$skill" ]; then
+        ok "skill-format" "$skill: frontmatter name matches directory"
+      else
+        error "skill-format" "$skill: frontmatter name should be '$skill', got '${skill_fm_name:-empty}'"
+      fi
+
+      if [ -n "$skill_fm_desc" ]; then
+        ok "skill-format" "$skill: has description in frontmatter"
+      else
+        error "skill-format" "$skill: missing description in frontmatter"
+      fi
+
+      if [ "$skill_body_lines" -gt 0 ]; then
+        ok "skill-format" "$skill: has markdown body"
+      else
+        error "skill-format" "$skill: SKILL.md has no body content after frontmatter"
+      fi
     else
       error "skill-files" "$slug: skills/$skill/SKILL.md is missing (skill '$skill' listed in frontmatter but no SKILL.md found)"
     fi
@@ -778,26 +778,20 @@ for task_md in "$COMPANY_ROOT/tasks"/*/TASK.md; do
 done
 
 # =============================================================================
-# Category 11: Chrome MCP consistency
+# Category 11: Codex config consistency
 # =============================================================================
 
 echo ""
-echo "=== Checking Chrome MCP consistency ==="
+echo "=== Checking Codex config consistency ==="
 
 for slug in "${AGENT_SLUGS[@]}"; do
-  mcp_file="$COMPANY_ROOT/agents/$slug/runtime/mcp.json"
-  settings="$COMPANY_ROOT/agents/$slug/runtime/settings.json"
+  config_toml="$COMPANY_ROOT/agents/$slug/runtime/.codex/config.toml"
+  [ ! -f "$config_toml" ] && continue
 
-  if [ -f "$mcp_file" ] && jq -e '.mcpServers["chrome-devtools"]' "$mcp_file" &>/dev/null; then
-    # Has Chrome DevTools MCP — check permissions
-    if [ -f "$settings" ]; then
-      perms_allow=$(jq -r '.permissions.allow[]? // empty' "$settings" 2>/dev/null)
-      if echo "$perms_allow" | grep -q "mcp__chrome-devtools"; then
-        ok "chrome-mcp" "$slug: has mcp__chrome-devtools permission for Chrome DevTools MCP"
-      else
-        error "chrome-mcp" "$slug: has Chrome DevTools MCP server but missing mcp__chrome-devtools in permissions.allow"
-      fi
-    fi
+  if grep -q '^\[mcp_servers\.' "$config_toml"; then
+    ok "codex-config" "$slug: config.toml defines one or more MCP servers"
+  else
+    ok "codex-config" "$slug: config.toml has no MCP server definitions"
   fi
 done
 
@@ -809,37 +803,38 @@ echo ""
 echo "=== Checking subagents ==="
 
 for slug in "${AGENT_SLUGS[@]}"; do
-  sa_dir="$COMPANY_ROOT/agents/$slug/runtime/agents"
+  sa_dir="$COMPANY_ROOT/agents/$slug/runtime/.codex/agents"
   [ ! -d "$sa_dir" ] && continue
 
-  for sa_file in "$sa_dir"/*.md; do
+  for sa_file in "$sa_dir"/*.toml; do
     [ ! -f "$sa_file" ] && continue
-    sa_name=$(basename "$sa_file" .md)
+    sa_name=$(basename "$sa_file" .toml)
 
-    # Check frontmatter has required fields
-    sa_fm_name=$(extract_frontmatter_field "$sa_file" "name")
-    sa_fm_desc=$(extract_frontmatter_field "$sa_file" "description")
+    sa_declared_name=$(grep -E '^name[[:space:]]*=' "$sa_file" | head -1 | sed 's/^name[[:space:]]*=[[:space:]]*//' | sed 's/^"//;s/"$//' || true)
+    sa_declared_desc=$(grep -E '^description[[:space:]]*=' "$sa_file" | head -1 | sed 's/^description[[:space:]]*=[[:space:]]*//' | sed 's/^"//;s/"$//' || true)
 
-    if [ -n "$sa_fm_name" ]; then
+    if [ -n "$sa_declared_name" ]; then
       ok "subagents" "$slug/$sa_name: has name"
     else
-      error "subagents" "$slug/$sa_name: missing 'name' in frontmatter"
+      error "subagents" "$slug/$sa_name: missing name in TOML"
     fi
 
-    if [ -n "$sa_fm_desc" ]; then
+    if [ -n "$sa_declared_desc" ]; then
       ok "subagents" "$slug/$sa_name: has description"
     else
-      error "subagents" "$slug/$sa_name: missing 'description' in frontmatter (Claude uses this to decide when to delegate)"
+      error "subagents" "$slug/$sa_name: missing description in TOML (Codex uses this to decide when to delegate)"
     fi
 
-    # Check it has a body (content after frontmatter)
-    body_lines=$(sed '1,/^---$/d' "$sa_file" 2>/dev/null | sed '/^---$/,$d' | grep -c '[^[:space:]]' 2>/dev/null || echo 0)
-    # Actually, get content after the second ---
-    body_lines=$(awk 'BEGIN{c=0} /^---$/{c++; next} c>=2{print}' "$sa_file" 2>/dev/null | grep -c '[^[:space:]]' 2>/dev/null || echo 0)
-    if [ "$body_lines" -gt 0 ]; then
-      ok "subagents" "$slug/$sa_name: has system prompt body"
+    if grep -q '^developer_instructions[[:space:]]*=[[:space:]]*"""' "$sa_file"; then
+      ok "subagents" "$slug/$sa_name: has developer_instructions block"
     else
-      warn "subagents" "$slug/$sa_name: empty system prompt body (consider adding business-specific instructions)"
+      error "subagents" "$slug/$sa_name: missing developer_instructions block"
+    fi
+
+    if grep -q '^model[[:space:]]*=' "$sa_file"; then
+      ok "subagents" "$slug/$sa_name: has model"
+    else
+      warn "subagents" "$slug/$sa_name: missing model (Codex may fall back to defaults)"
     fi
   done
 done

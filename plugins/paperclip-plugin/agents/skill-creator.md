@@ -69,6 +69,12 @@ description: >
 | `metadata.paperclip.tags` | no | Tags for categorization (e.g., `engineering`, `review`) |
 | `metadata.sources` | no | Attribution for referenced/vendored content |
 
+Non-negotiable formatting rules:
+- `SKILL.md` must start with YAML frontmatter on line 1.
+- The first line must be `---`.
+- Never write only the markdown body. Every skill file must include both frontmatter and body.
+- `name` must exactly match the skill directory name (`skills/{name}/SKILL.md`).
+
 ### Description Guidelines
 
 The `description` field is critical — it determines when the skill gets triggered and how agents discover it.
@@ -157,5 +163,6 @@ For each skill brief:
 1. Use the `name` as the skill slug and directory name (`skills/{name}/SKILL.md`)
 2. Use the `description` as the starting point for the SKILL.md `description` field — refine it to be precise and actionable for skill discovery
 3. Write the skill body guided by the brief's intent — expand on the conventions, rules, and examples that the description implies
+4. Ensure the final file has valid top-of-file YAML frontmatter followed by a non-empty markdown body
 
 Write all SKILL.md files using the Write tool. Follow the format and guidelines above for every file. Make each skill specific to the company's domain — never produce generic boilerplate.

@@ -3,7 +3,7 @@
 A company package follows the Agent Companies specification (`agentcompanies/v1`).
 
 ```
-{company-slug}/
+.
 ├── COMPANY.md                          # Company definition (name, goals, metadata)
 ├── goals/                              # Rich goal hierarchy (optional, overrides COMPANY.md goals)
 │   └── {goal-slug}/
@@ -17,10 +17,10 @@ A company package follows the Agent Companies specification (`agentcompanies/v1`
 │       ├── SOUL.md                     # Personality and voice
 │       ├── TOOLS.md                    # Agent tool reference — plugins, MCP servers, usage guidelines
 │       └── runtime/                    # Per-agent Codex runtime config
-│           ├── settings.json           # Permissions, enabledPlugins, env vars
-│           ├── mcp.json                # MCP server definitions
-│           └── agents/                 # Codex subagent definitions
-│               └── *.md
+│           └── .codex/
+│               ├── config.toml         # Codex runtime defaults + workspace-local MCP servers
+│               └── agents/             # Codex subagent definitions
+│                   └── *.toml
 ├── projects/
 │   └── {project-slug}/
 │       ├── PROJECT.md                  # Project definition
@@ -39,6 +39,8 @@ A company package follows the Agent Companies specification (`agentcompanies/v1`
 ├── README.md                           # Setup guide and org overview
 └── LICENSE                             # MIT default
 ```
+
+The package root is the current working directory. Do **not** create an extra wrapper folder named after the company unless the user explicitly asks for that layout.
 
 ## Spec Reference
 
@@ -158,11 +160,10 @@ Body contains the task description.
 
 | Source (in package) | Destination (in container) | Scope |
 |---|---|---|
-| `global/settings.json` | `/paperclip/.codex/config.toml` or bootstrap defaults | All agents |
+| `global/settings.json` | `/paperclip/.codex/config.toml` bootstrap defaults | All agents |
 | `global/plugins.json` | `/docker-init/codex/plugins.json` | All agents |
-| `agents/{slug}/runtime/settings.json` | Agent runtime plugin/permission config | One agent |
-| `agents/{slug}/runtime/mcp.json` | `<workspace>/.mcp.json` | One agent |
-| `agents/{slug}/runtime/agents/*.md` | Codex subagent definitions | One agent |
+| `agents/{slug}/runtime/.codex/config.toml` | `<workspace>/.codex/config.toml` | One agent |
+| `agents/{slug}/runtime/.codex/agents/*.toml` | `<workspace>/.codex/agents/*.toml` | One agent |
 
 Where `<workspace>` is `/paperclip/instances/default/workspaces/{agentId}/`.
 

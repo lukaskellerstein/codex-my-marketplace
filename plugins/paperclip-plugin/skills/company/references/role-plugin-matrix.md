@@ -46,7 +46,7 @@ Quick reference for assigning marketplace plugins and MCP permissions to agents 
 
 ## MCP Permission Mapping
 
-When a plugin with MCP servers is enabled, the agent's `settings.json` must also allow the MCP tools.
+When a plugin with MCP servers is enabled, Paperclip should provision the MCP tools and any required adapter/runtime fidelity. Workspace-local MCP servers that should apply directly to Codex belong in `runtime/.codex/config.toml`.
 
 | Plugin | MCP Server | Permission String |
 |--------|-----------|-------------------|
@@ -138,7 +138,7 @@ Each GWS-eligible role needs specific GWS skills listed in their AGENTS.md `skil
 For each GWS-eligible agent:
 
 1. **Frontmatter:** add the role's GWS skills from the table above to the `skills:` array
-2. **Env vars:** set `AGENT_EMAIL`, `COMPANY_DOMAIN`, and `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE` in `runtime/settings.json` (all three as a bundle)
+2. **Env vars:** declare `AGENT_EMAIL`, `COMPANY_DOMAIN`, and `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE` in `.paperclip.yaml` agent env inputs / adapter env (all three as a bundle)
 3. **Body:** add a "Google Workspace" section in AGENTS.md describing available tools
 
 Example AGENTS.md for a CEO:
@@ -189,148 +189,12 @@ Run `gws --help` or `gws <service> --help` for CLI documentation.
 
 ## Agent-Level MCP Servers
 
-Some agents need MCP servers defined in their own `mcp.json` (not from plugins):
+Some agents need MCP servers defined in their own `runtime/.codex/config.toml` (not from plugins):
 
 | MCP Server | Permission | Which Agents |
 |-----------|------------|-------------|
 | chrome-devtools (Chrome DevTools) | `mcp__chrome-devtools` | Frontend Engineer, QA Engineer, UX Tester |
 
-## settings.json Examples
+## Paperclip Fidelity Note
 
-### CEO (dev-tools + office + media)
-
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true,
-    "office-plugin@codex-my-marketplace": true,
-    "media-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_media-plugin_mermaid",
-      "mcp__plugin_media-plugin_media-playwright"
-    ]
-  }
-}
-```
-
-### CTO (dev-tools + office + media + infra)
-
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true,
-    "office-plugin@codex-my-marketplace": true,
-    "media-plugin@codex-my-marketplace": true,
-    "infra-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_media-plugin_mermaid",
-      "mcp__plugin_media-plugin_media-playwright"
-    ]
-  }
-}
-```
-
-### CMO (office + media + design)
-
-```json
-{
-  "enabledPlugins": {
-    "office-plugin@codex-my-marketplace": true,
-    "media-plugin@codex-my-marketplace": true,
-    "design-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_media-plugin_mermaid",
-      "mcp__plugin_media-plugin_media-playwright",
-      "mcp__plugin_media-plugin_media-mcp",
-      "mcp__plugin_media-plugin_ElevenLabs"
-    ]
-  }
-}
-```
-
-### Backend Engineer (dev-tools + infra)
-
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true,
-    "infra-plugin@codex-my-marketplace": true
-  }
-}
-```
-
-### Frontend Engineer (dev-tools + design + web-design)
-
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true,
-    "design-plugin@codex-my-marketplace": true,
-    "web-design-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_web-design-plugin_webdesign-playwright",
-      "mcp__chrome-devtools"
-    ]
-  }
-}
-```
-
-### Content Creator (office + media + design)
-
-```json
-{
-  "enabledPlugins": {
-    "office-plugin@codex-my-marketplace": true,
-    "media-plugin@codex-my-marketplace": true,
-    "design-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_media-plugin_mermaid",
-      "mcp__plugin_media-plugin_media-playwright",
-      "mcp__plugin_media-plugin_media-mcp",
-      "mcp__plugin_media-plugin_ElevenLabs"
-    ]
-  }
-}
-```
-
-### QA Engineer (dev-tools only, with chrome MCP)
-
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__chrome-devtools"
-    ]
-  }
-}
-```
-
-### HeadOfOperations / COO (office + company)
-
-```json
-{
-  "enabledPlugins": {
-    "office-plugin@codex-my-marketplace": true,
-    "company-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_company-plugin_dhl-api-assistant",
-      "mcp__plugin_company-plugin_stripe"
-    ]
-  }
-}
-```
+Plugin assignment, adapter env, and Paperclip permissions belong in `.paperclip.yaml`, not in `runtime/.codex/config.toml`.

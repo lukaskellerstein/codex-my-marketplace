@@ -129,7 +129,7 @@ This skill helps plan and document all the infrastructure, external services, an
 - Each company needs a GWS service account JSON key (see the [GWS setup guide](https://github.com/googleworkspace/cli/blob/main/README.md))
 - Place the key at `.company/gws/<company-slug>.json` in the Paperclip repo root
 - It is mounted into the container at `/paperclip/.gws/<company-slug>.json`
-- Agents that need GWS access set `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=/paperclip/.gws/<company-slug>.json` in their `runtime/settings.json` env
+- Agents that need GWS access set `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=/paperclip/.gws/<company-slug>.json` via `.paperclip.yaml` env inputs / adapter env
 
 ### 7. Payments
 

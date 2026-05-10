@@ -109,6 +109,11 @@ Ask: "Here's the full plan with assignments. Does everything look right? I'll st
 
 **Before writing any creative content**, run the pre-generation scripts. These handle all deterministic setup.
 
+**Company root convention:** generate the package in the **current working directory** unless the user explicitly asks for a different target path.
+- Do **not** create an extra nested folder named after the company slug.
+- Example: if the user is in `/home/lukas/Projects/Github/cellarwood/figurio`, then that directory itself is the company root.
+- Write `COMPANY.md`, `agents/`, `projects/`, `tasks/`, `skills/`, `global/`, and the temp files directly into the current directory.
+
 **Step 1:** Write a `._generation-config.json` file in the company root with your org decisions from Phases 1-5:
 
 ```json
@@ -192,15 +197,22 @@ Ask: "Here's the full plan with assignments. Does everything look right? I'll st
 
 **Step 2:** Run the pre-generation script:
 ```bash
-bash ../../scripts/pre-generate.sh <company-root> <company-root>/._generation-config.json
+bash ../../scripts/pre-generate.sh . ./._generation-config.json
 ```
+
+Use the current directory as `<company-root>`. In practice that means:
+```bash
+bash ../../scripts/pre-generate.sh . ./._generation-config.json
+```
+
+Note: the temp file path should be `./._generation-config.json` in the current directory.
 
 This creates:
 - Full directory skeleton
 - GWS skills in `skills/` (imported from googleworkspace/cli repo)
 - `global/settings.json` and `global/plugins.json`
-- Per-agent `runtime/settings.json` (enabledPlugins, permissions, env)
-- Per-agent `runtime/mcp.json`
+- Per-agent `runtime/.codex/config.toml` (Codex runtime defaults and any workspace-local MCP server definitions)
+- Per-agent `runtime/.codex/agents/` directory for Codex subagents
 - Per-agent AGENTS.md frontmatter skeleton (with merged custom + GWS skills)
 - `scripts/setup-secrets.sh`
 
@@ -265,24 +277,37 @@ This creates:
 
 **Step 4:** Run the plan generation script:
 ```bash
-bash ../../scripts/generate-plan.sh <company-root> <company-root>/._planning.json
+bash ../../scripts/generate-plan.sh . ./._planning.json
 ```
 
 This creates all `goals/`, `projects/`, and `tasks/` directories with proper frontmatter, ordering prefixes, and cross-references.
 
 ### Phase 7: Generate Creative Content
 
-**Do NOT overwrite** files created by pre-generate (`runtime/settings.json`, `runtime/mcp.json`, `global/*`, `scripts/setup-secrets.sh`, GWS skills, AGENTS.md frontmatter).
+**Do NOT overwrite** files created by pre-generate (`runtime/.codex/config.toml`, `global/*`, `scripts/setup-secrets.sh`, GWS skills, AGENTS.md frontmatter).
 
 This phase has two waves. Wave 1 generates all agent instruction bundles. Wave 2 generates skills and subagents (which can reference the agent files from Wave 1).
 
+**Important:** use real Codex subagent delegation for this phase.
+- Use `spawn_agent` for the Paperclip creator workers.
+- Use `wait_agent` before entering the dependent next wave.
+- Do **not** simulate these workers in the parent thread if delegation is available.
+- Only fall back to writing a delegated slice yourself if subagent spawning fails or is unavailable. If that happens, say so explicitly in the final summary.
+
 #### Wave 1: Agent files + package files (parallel)
 
-Spawn one **agent-creator** per paperclip agent, all in a single message so they run in parallel. Each writes AGENTS.md body (append), SOUL.md, HEARTBEAT.md, TOOLS.md for its agent.
+Spawn one **agent-creator** per paperclip agent so they run in parallel. Each subagent owns exactly one paperclip agent directory and writes AGENTS.md body (append), SOUL.md, HEARTBEAT.md, TOOLS.md for that agent.
+
+Use this exact orchestration pattern:
+1. Call `spawn_agent` once per paperclip agent with `agent_type: "paperclip-plugin:agent-creator"`.
+2. Pass the full company context plus the exact agent slice that worker owns.
+3. After launching all Wave 1 subagents, keep working locally only on `COMPANY.md` and `.paperclip.yaml`.
+4. Before Wave 2, call `wait_agent` until every Wave 1 subagent has finished.
+5. If one worker fails, retry once or complete only that failed slice locally.
 
 For each agent in the roster:
 ```
-Agent(subagent_type="paperclip-plugin:agent-creator", prompt="
+spawn_agent(agent_type="paperclip-plugin:agent-creator", message="
   Company: {name} — {description}
   Tech stack: {stack}
   Goals: {goal list}
@@ -292,7 +317,8 @@ Agent(subagent_type="paperclip-plugin:agent-creator", prompt="
   Role: {role}
   Title: {title}
   Reports to: {reportsTo}
-  Plugins: {plugins from runtime/settings.json}
+  Plugins: {assigned plugins from org decisions / .paperclip.yaml plan}
+  MCP servers: {workspace-local MCP servers from runtime/.codex/config.toml, if any}
   GWS eligible: {yes/no, email if yes}
   Skills: {list from AGENTS.md frontmatter}
   Responsibilities: {brief description of what this agent does}
@@ -301,7 +327,7 @@ Agent(subagent_type="paperclip-plugin:agent-creator", prompt="
 ")
 ```
 
-**While the agent-creators run**, write these package files yourself:
+**While the agent-creators run**, write these package files yourself in the parent thread:
 - `COMPANY.md` — with `schema: agentcompanies/v1`, name, slug, version, goals (2-5)
 - `.paperclip.yaml` — adapter config, budgets, env inputs
 
@@ -309,11 +335,18 @@ Note: `projects/`, `tasks/`, and `goals/` directories were already created by `g
 
 #### Wave 2: Skills + subagents (parallel, after Wave 1 completes)
 
-After all agent-creators finish, spawn **skill-creator** and **subagent-creator** agents in parallel — one per paperclip agent that has custom skills or subagents. All in a single message.
+After all agent-creators finish, spawn **skill-creator** and **subagent-creator** subagents in parallel. Do not start this wave until Wave 1 has completed, because these workers may rely on the agent files generated in Wave 1.
+
+Use this orchestration pattern:
+1. Build the Wave 2 spawn list only for agents that actually have custom skills or custom subagents.
+2. Launch one `paperclip-plugin:skill-creator` per agent with custom skills.
+3. Launch one `paperclip-plugin:subagent-creator` per agent with custom subagents.
+4. Call `wait_agent` for all Wave 2 workers before post-generate validation.
+5. Do **not** write custom skill files or runtime subagent files in the parent thread unless the delegated worker for that slice failed.
 
 For each agent with **custom skills**:
 ```
-Agent(subagent_type="paperclip-plugin:skill-creator", prompt="
+spawn_agent(agent_type="paperclip-plugin:skill-creator", message="
   Company: {name} — {description}
   Tech stack: {stack}
 
@@ -329,7 +362,7 @@ Agent(subagent_type="paperclip-plugin:skill-creator", prompt="
 
 For each agent with **subagents**:
 ```
-Agent(subagent_type="paperclip-plugin:subagent-creator", prompt="
+spawn_agent(agent_type="paperclip-plugin:subagent-creator", message="
   Company: {name} — {description}
   Tech stack: {stack}
 
@@ -340,7 +373,7 @@ Agent(subagent_type="paperclip-plugin:subagent-creator", prompt="
   {for each subagent from ._generation-config.json:
     - name: {subagent.name}
     - description: {subagent.description}
-    - path: agents/{slug}/runtime/agents/{subagent.name}.md}
+    - path: agents/{slug}/runtime/.codex/agents/{subagent.name}.toml}
 ")
 ```
 
@@ -359,7 +392,7 @@ Agent(subagent_type="paperclip-plugin:subagent-creator", prompt="
 
 **After all files are written** (including the agent results), run the validation script:
 ```bash
-bash ../../scripts/post-generate.sh <company-root>
+bash ../../scripts/post-generate.sh .
 ```
 
 **If the script reports ERRORs:** fix each error and re-run the script. Repeat until 0 errors.
@@ -379,10 +412,10 @@ Present:
 
 ## Output Structure
 
-The generated package MUST follow this structure:
+The generated package MUST follow this structure in the **current working directory**:
 
 ```
-{company-slug}/
+.
 ├── COMPANY.md
 ├── agents/
 │   └── {agent-slug}/
@@ -391,10 +424,10 @@ The generated package MUST follow this structure:
 │       ├── SOUL.md
 │       ├── TOOLS.md
 │       └── runtime/
-│           ├── settings.json
-│           ├── mcp.json
-│           └── agents/              # Subagent definitions
-│               └── *.md
+│           └── .codex/
+│               ├── config.toml
+│               └── agents/          # Subagent definitions
+│                   └── *.toml
 ├── goals/
 │   └── {goal-slug}/
 │       ├── GOAL.md
@@ -424,10 +457,10 @@ After generation, instruct the user on the two import paths:
 - Push the package to a GitHub repo
 - Import via Paperclip UI (Company Import page) or API: `POST /companies/import` with `source.type: "github"`
 - The import handles: COMPANY.md, AGENTS.md + instruction bundles, projects, tasks, skills, .paperclip.yaml
-- The import also deploys `runtime/` files (settings.json, mcp.json, subagents) to agent workspaces
+- The import also deploys `runtime/.codex/` into each agent workspace as `.codex/`
 
 **2. Global config (requires manual setup):**
-- Copy `global/settings.json` and `global/plugins.json` into `.company/claude/` in the Paperclip repo root
+- Copy `global/settings.json` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
 - Rebuild/restart the container
 
 ## Rules

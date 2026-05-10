@@ -2,7 +2,7 @@
 
 Runtime config is split into two scopes: global (all agents) and per-agent.
 
-Codex resolves plugin state in layers: the Codex home (`~/.codex` or `/paperclip/.codex` in Docker) holds the shared cache and `config.toml`, while the per-agent runtime config controls which plugins and permissions are active for that agent.
+Codex resolves state in layers: the Codex home (`~/.codex` or `/paperclip/.codex` in Docker) holds shared auth, config, and installed skills/plugins, while the per-agent workspace can contain a local `.codex/config.toml` and `.codex/agents/*.toml` that apply when Codex runs in that workspace.
 
 ## Global Config (`global/`)
 
@@ -51,70 +51,45 @@ Marketplace and plugin installation. Installs binaries globally so any agent can
 
 Only include plugins that at least one agent will use.
 
-## Per-Agent Config (`agents/{slug}/runtime/`)
+## Per-Agent Config (`agents/{slug}/runtime/.codex/`)
 
-### `runtime/settings.json`
+### `runtime/.codex/config.toml`
 
-Controls which globally-installed plugins are active for this agent.
+Codex runtime defaults for the individual agent workspace.
 
-```json
-{
-  "enabledPlugins": {
-    "dev-tools-plugin@codex-my-marketplace": true,
-    "design-plugin@codex-my-marketplace": true
-  },
-  "permissions": {
-    "allow": [
-      "mcp__plugin_web-design-plugin_webdesign-playwright",
-      "mcp__chrome-devtools"
-    ]
-  },
-  "env": {
-    "SOME_VAR": "value"
-  }
-}
+```toml
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+ 
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
 ```
 
-See `role-plugin-matrix.md` in the company command references for exact assignments per role.
+Use this file for Codex-native workspace behavior:
+- approval mode
+- sandbox mode
+- workspace-local MCP server definitions
+- other Codex settings that should apply when the agent's CWD is the workspace root
 
-### `runtime/mcp.json`
-
-MCP server definitions. Most agents have empty `mcpServers: {}`.
-
-Source file: `agents/{slug}/runtime/mcp.json` (no leading dot)
-Deployed to: `<workspace>/.mcp.json` (with leading dot)
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@anthropic-ai/mcp-playwright@latest"]
-    }
-  }
-}
-```
-
-MCP tools must also be allowed in `runtime/settings.json` permissions.
-
-### `runtime/agents/*.md` (Subagents)
+### `runtime/.codex/agents/*.toml` (Subagents)
 
 Codex subagent definitions. Discovered from the active Codex runtime state.
 
-Source: `agents/{slug}/runtime/agents/*.md`
-Deployed to: `<workspace>/.claude/agents/*.md`
+Source: `agents/{slug}/runtime/.codex/agents/*.toml`
+Deployed to: `<workspace>/.codex/agents/*.toml`
 
-```markdown
----
-name: code-reviewer
-description: >
-  Reviews code for quality and security. Never modifies code.
-model: sonnet
-disallowedTools: Edit, Write
-color: blue
----
+```toml
+name = "code-reviewer"
+description = "Reviews code for quality and security. Never modifies code."
 
+model = "gpt-5.4-mini"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+
+developer_instructions = """
 You are a senior code reviewer. Report findings with file paths and line numbers.
+"""
 ```
 
 Use subagents for quick in-session tasks (review, test, search). Use Paperclip task delegation for tracked, cross-agent work.
@@ -131,6 +106,4 @@ Use subagents for quick in-session tasks (review, test, search). Use Paperclip t
 | `web-design-plugin` | End-to-end website/webapp design, visual testing. Depends on: design-plugin, media-plugin | Playwright |
 | `company-plugin` | Shipping (Zasilkovna, DHL), payments (Stripe) | DHL API Assistant, Stripe |
 
-Plugin names in `enabledPlugins` use: `{name}@codex-my-marketplace`
-
-**Dependencies:** `web-design-plugin` depends on `design-plugin`, which depends on `media-plugin` and `office-plugin`. Enable dependencies too.
+Plugin installation and agent env inputs are Paperclip-specific fidelity and belong in `.paperclip.yaml`, not in the Codex-native workspace files.

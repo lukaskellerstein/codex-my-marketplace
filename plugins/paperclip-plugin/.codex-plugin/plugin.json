@@ -1,6 +1,6 @@
 {
   "name": "paperclip-plugin",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "AI company planning plugin for Paperclip-style company, agent, and infrastructure design workflows.",
   "author": {
     "name": "Lukas Kellerstein",
