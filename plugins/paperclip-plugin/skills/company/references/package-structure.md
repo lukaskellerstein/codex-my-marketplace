@@ -33,7 +33,7 @@ A company package follows the Agent Companies specification (`agentcompanies/v1`
 ├── scripts/
 │   └── setup-secrets.sh                # Post-import script to create company secrets via API
 ├── global/                             # Shared runtime config (all agents)
-│   ├── settings.json                   # Global Codex bootstrap settings (baseline)
+│   ├── config.toml                    # Global Codex bootstrap defaults
 │   └── plugins.json                    # Marketplace and plugin installation
 ├── .paperclip.yaml                     # Vendor extension (adapter, budget, env)
 ├── README.md                           # Setup guide and org overview
@@ -160,7 +160,7 @@ Body contains the task description.
 
 | Source (in package) | Destination (in container) | Scope |
 |---|---|---|
-| `global/settings.json` | `/paperclip/.codex/config.toml` bootstrap defaults | All agents |
+| `global/config.toml` | `/paperclip/.codex/config.toml` bootstrap defaults | All agents |
 | `global/plugins.json` | `/docker-init/codex/plugins.json` | All agents |
 | `agents/{slug}/runtime/.codex/config.toml` | `<workspace>/.codex/config.toml` | One agent |
 | `agents/{slug}/runtime/.codex/agents/*.toml` | `<workspace>/.codex/agents/*.toml` | One agent |
@@ -171,5 +171,5 @@ Where `<workspace>` is `/paperclip/instances/default/workspaces/{agentId}/`.
 
 The `global/` files are NOT imported via the company import API. They must be placed in the Paperclip repo and mounted into the Docker container:
 
-1. Copy `global/settings.json` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
+1. Copy `global/config.toml` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
 2. Rebuild/restart the container (the volume mount is already configured in docker-compose.yml)

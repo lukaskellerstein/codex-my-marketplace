@@ -210,7 +210,7 @@ Note: the temp file path should be `./._generation-config.json` in the current d
 This creates:
 - Full directory skeleton
 - GWS skills in `skills/` (imported from googleworkspace/cli repo)
-- `global/settings.json` and `global/plugins.json`
+- `global/config.toml` and `global/plugins.json`
 - Per-agent `runtime/.codex/config.toml` (Codex runtime defaults and any workspace-local MCP server definitions)
 - Per-agent `runtime/.codex/agents/` directory for Codex subagents
 - Per-agent AGENTS.md frontmatter skeleton (with merged custom + GWS skills)
@@ -460,7 +460,7 @@ After generation, instruct the user on the two import paths:
 - The import also deploys `runtime/.codex/` into each agent workspace as `.codex/`
 
 **2. Global config (requires manual setup):**
-- Copy `global/settings.json` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
+- Copy `global/config.toml` and `global/plugins.json` into `.company/codex/` in the Paperclip repo root
 - Rebuild/restart the container
 
 ## Rules

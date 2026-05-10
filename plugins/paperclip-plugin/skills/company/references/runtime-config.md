@@ -8,21 +8,13 @@ Codex resolves state in layers: the Codex home (`~/.codex` or `/paperclip/.codex
 
 Processed once at container startup by the Docker entrypoint. Affects all agents.
 
-### `global/settings.json`
+### `global/config.toml`
 
-Baseline deny rules and shared env vars. Do NOT put per-agent `enabledPlugins` here.
+Shared Codex bootstrap defaults copied into `/paperclip/.codex/config.toml` at container startup.
 
-```json
-{
-  "permissions": {
-    "deny": [
-      "Bash(rm -rf /)",
-      "Bash(rm -rf ~)",
-      "Read(./**/*.pem)",
-      "Read(./**/*.key)"
-    ]
-  }
-}
+```toml
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
 ```
 
 ### `global/plugins.json`

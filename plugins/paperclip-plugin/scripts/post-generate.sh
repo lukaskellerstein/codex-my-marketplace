@@ -200,7 +200,7 @@ count_goals() {
 
 echo "=== Checking required files ==="
 
-for f in COMPANY.md global/settings.json global/plugins.json .paperclip.yaml; do
+for f in COMPANY.md global/config.toml global/plugins.json .paperclip.yaml; do
   if [ -f "$COMPANY_ROOT/$f" ]; then
     ok "required-files" "$f exists"
   else

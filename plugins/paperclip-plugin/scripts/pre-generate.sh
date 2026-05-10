@@ -17,7 +17,7 @@
 # What this script creates:
 #   - Full directory skeleton (agents/, projects/, tasks/, skills/, global/, scripts/)
 #   - GWS skills (imported from googleworkspace/cli repo) if any agent is GWS-eligible
-#   - global/settings.json (deny rules)
+#   - global/config.toml (shared Codex bootstrap defaults)
 #   - global/plugins.json (union of all agent plugins)
 #   - Per-agent runtime/.codex/config.toml (Codex runtime defaults + MCP server config)
 #   - Per-agent runtime/.codex/agents/ (Codex subagent TOML definitions written later)
@@ -182,22 +182,14 @@ else
 fi
 
 # =============================================================================
-# Step 3: Generate global/settings.json
+# Step 3: Generate global/config.toml
 # =============================================================================
 
-echo "[pre-generate] Writing global/settings.json..."
-cat > "$COMPANY_ROOT/global/settings.json" << 'GLOBAL_SETTINGS'
-{
-  "permissions": {
-    "deny": [
-      "Bash(rm -rf /)",
-      "Bash(rm -rf ~)",
-      "Read(./**/*.pem)",
-      "Read(./**/*.key)"
-    ]
-  }
-}
-GLOBAL_SETTINGS
+echo "[pre-generate] Writing global/config.toml..."
+cat > "$COMPANY_ROOT/global/config.toml" << 'GLOBAL_CONFIG'
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+GLOBAL_CONFIG
 
 # =============================================================================
 # Step 4: Generate global/plugins.json
@@ -409,5 +401,5 @@ echo ""
 echo "[pre-generate] Do NOT overwrite files this script created:"
 echo "  - agents/*/AGENTS.md frontmatter (skills are already set)"
 echo "  - agents/*/runtime/.codex/config.toml"
-echo "  - global/settings.json, global/plugins.json"
+echo "  - global/config.toml, global/plugins.json"
 echo "  - scripts/setup-secrets.sh"
