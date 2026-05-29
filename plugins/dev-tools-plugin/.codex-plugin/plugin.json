@@ -1,6 +1,6 @@
 {
   "name": "dev-tools-plugin",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Developer workflow plugin for git, dead-code analysis, dependency updates, spec sync, and documentation maintenance tasks.",
   "author": {
     "name": "Lukas Kellerstein",

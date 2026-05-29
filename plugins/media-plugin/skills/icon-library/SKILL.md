@@ -10,6 +10,8 @@ description: >
 
 # Icon Library
 
+> **Step 0 — plan first.** Before fetching, run the **visual-planning** skill: confirm the icon set/style to match (one library, one stroke weight), the concepts to represent, and the sizing — so icons stay consistent across the asset.
+
 Fetch production-quality SVG icons from open-source libraries instead of drawing them manually. These icons are professionally designed, consistent, and optimized for clean rendering in Figma and code.
 
 ## When to Use
@@ -222,3 +224,10 @@ icon.resize(32, 32); // Scale to 32x32
 - Icon names use **kebab-case** in all three libraries
 - Most icons are **24x24** with **2px stroke** — resize after insertion if needed
 - When inserting icons into a Figma component, flatten the SVG group if needed: `figma.flatten([iconNode])`
+
+## After fetching: tune the icon
+
+This skill *sources* icons. To **optimize, recolor with `currentColor`, animate, build a sprite, or embed** a fetched icon, hand it to **svg-mastery**:
+- Clean and shrink it → `svg-mastery/references/optimization.md`.
+- Theme/animate/sprite it → `svg-mastery` SKILL.md (currentColor, sprites) + `references/animation-recipes.md`.
+- Need a *custom* mark no library has? → `svg-mastery/references/logos-marks.md` (never hand-draw standard UI icons here).

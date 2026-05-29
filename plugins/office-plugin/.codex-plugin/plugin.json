@@ -1,6 +1,6 @@
 {
   "name": "office-plugin",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Office document generation plugin for PPTX, DOCX, and XLSX workflows.",
   "author": {
     "name": "Lukas Kellerstein",

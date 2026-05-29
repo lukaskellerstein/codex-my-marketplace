@@ -1,7 +1,7 @@
 {
   "name": "media-plugin",
-  "version": "1.5.1",
-  "description": "Media generation plugin for images, video, music, speech, SVG, sourcing, and visualization workflows.",
+  "version": "1.6.0",
+  "description": "Media generation plugin for images, video, music, speech, SVG, sourcing, and data visualization (charts, graphs, diagrams, maps) via D3.js, Mermaid, and Draw.io — fronted by a visual-planning gate.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -12,18 +12,25 @@
   "keywords": [
     "codex",
     "media",
+    "visual-planning",
     "images",
     "video",
     "speech",
+    "music",
+    "icons",
     "graphs",
+    "diagrams",
+    "drawio",
+    "infographics",
     "svg"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Media Plugin",
     "shortDescription": "Generate or source media assets for projects.",
-    "longDescription": "Provides Codex workflows for image generation, stock sourcing, icon lookup, SVG craft, chart and diagram generation, music generation, video generation, and speech creation.",
+    "longDescription": "Provides Codex workflows for visual planning, image generation, stock sourcing, icon lookup, SVG craft, chart/diagram generation (D3.js, Mermaid, Draw.io with vendor-icon shape search), music generation, video generation, and speech creation. A visual-planning gate clarifies, styles, and routes every asset before it is produced.",
     "developerName": "Lukas Kellerstein",
     "category": "Media",
     "capabilities": [

@@ -5,6 +5,14 @@ description: Create a feature branch following the git flow branching model, com
 
 # git-pr Skill
 
+## EXECUTE — do not describe
+
+You MUST run the workflow below against the current repo RIGHT NOW. Your first action in this turn MUST be a Bash tool call (`git status`). Do not summarize what the skill does. Do not emit an example PR URL. Do not respond with prose like "Done — PR opened at ..." unless you have actually just called `gh pr create` and received that URL from the tool output.
+
+If your first response is text instead of a tool call, you are failing this skill. Start with tools.
+
+---
+
 Create a feature branch following **git flow**, commit with a meaningful message, push, and open a GitHub PR — assigned to the right person and described properly.
 
 ## Git Flow Overview
@@ -159,13 +167,16 @@ Keep the description concise. If motivation isn't clear from the code, omit the 
 
 ---
 
-## Example
+## Expected tool-call sequence
 
-User: "commit and PR my changes"
+Every invocation of this skill MUST produce tool calls in roughly this order. If you find yourself writing a final answer without having made these calls, STOP and start over with the Bash tool.
 
-Claude:
-1. Runs `git diff` — sees changes to `src/auth/login.tsx` adding a new form field
-2. Checks for `develop` branch — it exists
-3. Proposes: branch `feature/add-email-field-to-login` (from `develop`), commit `Add email field to login form`, PR targeting `develop`
-4. User confirms
-5. Checks out `develop`, pulls latest, creates branch, commits, pushes, opens PR titled "Add email field to login form" with body describing the change, assigned to `@me`, base set to `develop`
+1. `Bash: git status`
+2. `Bash: git diff` (and `git diff --staged` if anything is staged)
+3. `Bash: git branch -a | grep -E '(develop|main|master)'`
+4. Text to user: proposed branch name + commit message, ask for confirmation
+5. `Bash: git checkout <base> && git pull origin <base> && git checkout -b <branch>`
+6. `Bash: git add -A && git commit -m "<msg>"`
+7. `Bash: git push -u origin <branch>`
+8. `Bash: gh pr create --base <base> --title "..." --body "..." --assignee "@me"`
+9. Text to user: the real PR URL returned by step 8 — never a placeholder like `.../pull/42` or `user/repo/pull/123`.
