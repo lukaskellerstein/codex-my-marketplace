@@ -2,7 +2,7 @@
 
 A Codex plugin marketplace containing the same plugin families, skills, and agent content as `claude-my-marketplace`, packaged for Codex plugin manifests and marketplace metadata.
 
-This marketplace bundles **8 plugins** covering business operations, developer workflows, office documents, infrastructure, media generation, design, web design, and AI company planning.
+This marketplace bundles **9 plugins** covering business operations, developer workflows, office documents, infrastructure, media generation, design, web design, AI company planning, and social agent workflows.
 
 ## Repository Layout
 
@@ -67,6 +67,12 @@ End-to-end website and webapp design workflow for Codex, from brief to implement
 AI company planning workflows for Paperclip-style company design, work planning, and infrastructure planning.
 
 - Skills: `company`, `work-planning`, `infrastructure-planning`
+
+### [social-plugin](plugins/social-plugin)
+
+Social agent workflows for X/Twitter research, read-only context gathering, and explicitly approved posting through Hermes Tweet.
+
+- Skills: `hermes-tweet`
 - Agents: `agent-creator`, `skill-creator`, `subagent-creator`
 
 ## Environment Variables
@@ -91,6 +97,15 @@ The `media-plugin` reads these variables from [`plugins/media-plugin/.mcp.json`]
 | `GEMINI_API_KEY` | Yes | Required by the `media-mcp` server for image, video, and music generation workflows. |
 | `ELEVENLABS_API_KEY` | Optional | Required when using ElevenLabs-backed speech and voice features. |
 | `MEDIA_OUTPUT_DIR` | Recommended | Directory where generated or downloaded media files should be written. |
+
+### social-plugin
+
+The `social-plugin` documents Hermes Tweet usage. The external Hermes Tweet plugin reads these variables when installed:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `XQUIK_API_KEY` | Yes | Enables read and action tools in Hermes Tweet. |
+| `HERMES_TWEET_ENABLE_ACTIONS` | Optional | Must be `true` before account actions are available. |
 
 ## Marketplace Metadata
 

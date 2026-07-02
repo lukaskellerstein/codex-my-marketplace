@@ -1,0 +1,38 @@
+{
+  "name": "social-plugin",
+  "version": "1.0.0",
+  "description": "Social agent plugin for Hermes Tweet X/Twitter workflows.",
+  "author": {
+    "name": "Xquik",
+    "url": "https://github.com/Xquik-dev/hermes-tweet"
+  },
+  "homepage": "https://github.com/Xquik-dev/hermes-tweet",
+  "repository": "https://github.com/Xquik-dev/hermes-tweet",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "hermes",
+    "social",
+    "x",
+    "twitter"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Social Plugin",
+    "shortDescription": "Guide agents through Hermes Tweet social workflows.",
+    "longDescription": "Adds a Codex skill for using the Hermes Tweet plugin when an agent needs X/Twitter search, read-only context gathering, or explicitly approved posting through Xquik.",
+    "developerName": "Xquik",
+    "category": "Automation",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Use Hermes Tweet to inspect X/Twitter context for this topic.",
+      "Draft an X/Twitter update and wait for approval before any action.",
+      "Check whether Hermes Tweet is configured before using social tools."
+    ],
+    "brandColor": "#111827"
+  }
+}
