@@ -1,6 +1,6 @@
 {
   "name": "dev-tools-plugin",
-  "version": "1.6.0+codex.20260912223149",
+  "version": "1.6.0+codex.20260912225547",
   "description": "Developer tooling for read-only thinking and Q&A, git workflows, code hygiene, dependency management, and project documentation. Every skill is user-invoked only.",
   "author": {
     "name": "Lukas Kellerstein",

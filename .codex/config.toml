@@ -6,7 +6,7 @@ description = "Workspace development with network access and secret-file protect
 extends = ":workspace"
 
 [permissions.marketplace-development.filesystem]
-"~/.codex/plugins/cache/codex-my-marketplace" = "write"
+"~/.codex" = "write"
 glob_scan_max_depth = 8
 
 [permissions.marketplace-development.filesystem.":workspace_roots"]
