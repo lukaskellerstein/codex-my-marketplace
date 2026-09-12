@@ -1,6 +1,6 @@
 {
   "name": "demo-video-plugin",
-  "version": "1.1.0+codex.20260912224929",
+  "version": "1.1.0+codex.20260912225547",
   "description": "Build narrated, edited project demos with deterministic app state; Playwright-driven web, launched Electron, or attached-app capture; Playwright or OBS recording; ElevenLabs voiceover; measured timelines; Remotion rendering; and Final Cut Pro export.",
   "author": {
     "name": "Lukas Kellerstein",
