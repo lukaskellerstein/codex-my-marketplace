@@ -1,0 +1,7 @@
+interface:
+  display_name: "Update Dependencies"
+  short_description: "Upgrade dependencies and verify compatibility."
+  default_prompt: "Use $update-dependencies to upgrade this project's dependencies."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "media-mcp": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "media-mcp"
@@ -9,9 +10,10 @@
         "GEMINI_API_KEY": "${GEMINI_API_KEY}",
         "MEDIA_OUTPUT_DIR": "${MEDIA_OUTPUT_DIR}"
       },
-      "description": "AI-powered media generation via Google Gemini"
+      "description": "AI-powered media generation (image, video, music, speech) via Google Gemini"
     },
     "ElevenLabs": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "elevenlabs-mcp"
@@ -23,9 +25,11 @@
     },
     "mermaid": {
       "url": "https://mcp.mermaid.ai/mcp",
+      "type": "http",
       "description": "Mermaid diagram generation for architecture and documentation"
     },
     "drawio": {
+      "type": "stdio",
       "command": "npx",
       "args": [
         "-y",

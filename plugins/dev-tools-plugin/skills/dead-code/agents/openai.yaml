@@ -1,0 +1,7 @@
+interface:
+  display_name: "Dead Code"
+  short_description: "Find unused code and propose safe cleanup."
+  default_prompt: "Use $dead-code to find unused code in this repository."
+
+policy:
+  allow_implicit_invocation: false

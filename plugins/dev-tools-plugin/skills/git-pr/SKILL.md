@@ -1,182 +1,113 @@
 ---
 name: git-pr
-description: Create a feature branch following the git flow branching model, commit staged or unstaged changes with a well-crafted commit message, and open a GitHub Pull Request with a meaningful title, description, and assignee. Follows git flow conventions — branches are created from and merged back into `develop`, with `feature/`, `hotfix/`, `release/`, and `bugfix/` prefixes. Use this skill whenever the user wants to commit their work and raise a PR, says things like "commit and open a PR", "create a pull request for my changes", "push this to a branch", "ship this", "submit this for review", or any variation of wanting to save work and create a GitHub PR. Always use this skill even if the user only mentions one part (e.g. "just commit this") — the full branch-commit-PR flow is the default behavior.
+description: For every git repo in the current folder, create and merge a PR for feature-branch work, then return to the default branch and pull. With no arguments this runs fully autonomously across ALL sub-repos — commit → push → PR → squash-merge → checkout main → pull. Use whenever the user asks to commit, ship, push, open/merge a PR, "update all repos", "get back to main", or any variant of saving work to a PR and bringing branches up to date — even if they mention only one part of the flow.
 ---
 
 # git-pr Skill
 
 ## EXECUTE — do not describe
 
-You MUST run the workflow below against the current repo RIGHT NOW. Your first action in this turn MUST be a Bash tool call (`git status`). Do not summarize what the skill does. Do not emit an example PR URL. Do not respond with prose like "Done — PR opened at ..." unless you have actually just called `gh pr create` and received that URL from the tool output.
-
-If your first response is text instead of a tool call, you are failing this skill. Start with tools.
+Run the workflow below RIGHT NOW. Your first action MUST be a shell tool call that runs the helper's `discover` command. Never print a PR URL that the script did not print.
 
 ---
 
-Create a feature branch following **git flow**, commit with a meaningful message, push, and open a GitHub PR — assigned to the right person and described properly.
+## The one rule: every git and GitHub step goes through the script
 
-## Git Flow Overview
+Resolve `<skill-dir>` as the directory containing this `SKILL.md`, then run:
 
-This skill follows the [git flow](https://nvie.com/posts/a-successful-git-branching-model/) branching model:
+```
+bash <skill-dir>/scripts/git-pr.sh
+```
 
-- **`main`** (or `master`) — production-ready code. Only `release/` and `hotfix/` branches merge here.
-- **`develop`** — the integration branch. All `feature/` and `bugfix/` branches are created from and merged back into `develop`.
-- **`feature/*`** — new functionality, branched from `develop`.
-- **`bugfix/*`** — non-urgent fixes, branched from `develop`.
-- **`release/*`** — release prep, branched from `develop`, merged into both `main` and `develop`.
-- **`hotfix/*`** — urgent production fixes, branched from `main`, merged into both `main` and `develop`.
+The user explicitly invoked this skill, so execute the documented commit → push → PR → squash-merge → checkout-default → pull workflow without asking for another confirmation.
 
-## Prerequisites
+- **Never run state-changing `git` or `gh` commands yourself** — no commit, push, checkout, branch, pull, `gh pr create`, or `gh pr merge`. The script performs them with safety checks.
+- **Use one plain helper invocation per shell call.** Do not add `cd … &&`, environment prefixes, pipes, redirections, or command chains. The sole exception is the quoted `<<'MSG'` heredoc in Step 3.
+- **Run the helper normally with the session's active permissions.** Do not preemptively request escalation or stop merely because the sandbox is `workspace-write` or the approval policy is `never`. If a helper call is actually rejected by the sandbox, network policy, or authentication, report the real error; never infer a denial before running it.
+- **A line starting with `STOP:` is final** for that repo. Report it in the summary and continue with the next repo. Do not retry it another way.
 
-- `git` must be installed and the current directory must be inside a git repo
-- `gh` (GitHub CLI) must be installed and authenticated (`gh auth status`)
-  - If not installed: https://cli.github.com/
-  - If not authenticated: run `gh auth login`
+What the script will never do, whatever you pass it: force-push, reset, clean, rebase, stash, amend, `--admin` merge, or delete a branch whose commits are not merged.
 
 ---
 
 ## Workflow
 
-### Step 1: Understand the changes and detect the git flow base branch
-
-Run `git diff` (and `git diff --staged` if anything is staged) plus `git status` to understand what has changed. Do NOT ask the user to explain their changes — figure it out from the diff yourself.
-
-```bash
-git status
-git diff
-git diff --staged
-```
-
-If there are **no changes** at all, tell the user and stop.
-
-**Detect the base branch:**
-
-Check which branches exist in the repo to determine the git flow setup:
-
-```bash
-git branch -a | grep -E '(develop|main|master)'
-```
-
-- If `develop` exists, use it as the default base branch (for `feature/` and `bugfix/` branches).
-- If the user explicitly says this is a **hotfix** (urgent production fix), branch from `main`/`master` instead.
-- If `develop` does not exist, fall back to `main`/`master` and let the user know the repo doesn't appear to follow git flow fully.
-
-### Step 2: Generate branch name and commit message
-
-From the diff, synthesize:
-
-**Branch name (git flow conventions):**
-- `feature/<short-kebab-slug>` — new functionality (e.g. `feature/add-login-button`)
-- `bugfix/<short-kebab-slug>` — non-urgent bug fixes targeting `develop`
-- `hotfix/<short-kebab-slug>` — urgent production fixes (branched from `main`/`master`)
-- `release/<version>` — release preparation (e.g. `release/1.2.0`)
-- `chore/<short-kebab-slug>` — non-functional changes (deps, config, docs)
-- Max ~5 words, lowercase, hyphens only
-- Default to `feature/` when in doubt
-
-**Commit message:**
-- First line: imperative mood, ≤72 chars (e.g. `Add login button to navbar`)
-- Optionally followed by a blank line and a short body (2–4 lines) if the change is complex
-- Be specific — never use vague messages like "update files" or "fix stuff"
-
-**Show both to the user and ask for confirmation before proceeding.** Keep it brief — just show the proposed branch name and commit message and ask "Look good? I'll proceed unless you want changes."
-
-### Step 3: Create the branch from the correct base
-
-First, ensure you're branching from the right base per git flow:
-
-```bash
-# For feature/ and bugfix/ branches — branch from develop
-git checkout develop
-git pull origin develop
-git checkout -b <branch-name>
-
-# For hotfix/ branches — branch from main/master
-git checkout main
-git pull origin main
-git checkout -b <branch-name>
-```
-
-If the branch already exists, append a short suffix like `-2`.
-
-### Step 4: Stage and commit
-
-Stage everything that's unstaged (unless the user has explicitly staged a subset — in that case respect their staging):
-
-```bash
-git add -A   # or git add <specific files> if partial staging is intentional
-git commit -m "<commit message>"
-```
-
-For multi-line commit messages:
-```bash
-git commit -m "<subject>" -m "<body>"
-```
-
-### Step 5: Push the branch
-
-```bash
-git push -u origin <branch-name>
-```
-
-### Step 6: Create the PR with `gh` (targeting the correct base)
-
-Determine the correct PR base branch per git flow:
-- `feature/*`, `bugfix/*` → base is `develop`
-- `hotfix/*` → base is `main`/`master`
-- `release/*` → base is `main`/`master`
-
-```bash
-gh pr create \
-  --base <base-branch> \
-  --title "<PR title — same as commit subject>" \
-  --body "<PR description>" \
-  --assignee "@me"
-```
-
-**PR description template** (fill in from the diff):
+### Step 0 — find the repos
 
 ```
+bash <skill-dir>/scripts/git-pr.sh discover <folder>
+```
+
+`<folder>` is the working directory, or the folder the user named. It prints one `REPO <path>` line per repo (the repos directly inside the folder, or the folder itself), or `NO_REPOS` — then tell the user and stop.
+
+### Step 1 — classify each repo
+
+```
+bash <skill-dir>/scripts/git-pr.sh status <repo>
+```
+
+It fetches, then prints `BASE=`, `BRANCH=`, `CHANGED_FILES=`, `COMMITS_AHEAD=`, `CASE=`, and — when there is work — the status, the commits and the diff. Act on `CASE`:
+
+| `CASE` | Meaning | Run |
+|---|---|---|
+| `C` | on the default branch, clean | `sync <repo>` |
+| `B` | feature branch, nothing to ship | `sync <repo>` |
+| `B_MERGED` | feature branch whose PR was already squash-merged | `sync <repo>` |
+| `A` | feature branch with work | Steps 2 and 3 |
+| `A_NEW_BRANCH` | on the default branch with uncommitted work | Steps 2 and 3, with `--new-branch feature/<short-topic>` |
+| `STOP` | needs a human (`WHY=` says why) | nothing — report `WHY` as it is. Do not open the file it names. |
+
+Git flow: if the user asked to target `develop` (or another base), add `--base develop` to `status`, `sync` and `ship`.
+
+### Step 2 — compose the message (cases A and A_NEW_BRANCH)
+
+Read the diff that `status` printed. If you need more, read the changed source files — never on `.env`, keys or credential files, and never quote a secret value. Do not write the message to a file — a file in the repo would get committed.
+
+```
+<title: imperative, specific, ≤ 72 chars — never "update files">
+
 ## What
-<1–2 sentences describing what this PR does>
+<1–2 sentences>
 
 ## Why
-<1–2 sentences on motivation / context, if inferable from the code>
+<1–2 sentences, only if the motivation is clear from the code>
 
 ## Changes
-- <bullet: key file or component changed and what was done>
-- <bullet: ...>
+- <key change>
+- <key change>
 ```
 
-Keep the description concise. If motivation isn't clear from the code, omit the "Why" section rather than guessing.
+Line 1 becomes the commit subject and the PR title. The rest becomes the PR body.
 
-**Do not** add reviewers, labels, or milestones unless the user requests them.
+### Step 3 — ship, with the message on stdin
 
----
+Pass the message as a heredoc with a **quoted** delimiter (`<<'MSG'`), so backticks and `$` stay literal. Nothing else on the command line:
 
-## Error Handling
+```
+bash <skill-dir>/scripts/git-pr.sh ship <repo> --message-file - <<'MSG'
+Add greet helper to the CLI
 
-| Situation | Action |
-|---|---|
-| `gh` not installed | Tell user, link to https://cli.github.com, stop |
-| `gh` not authenticated | Run `gh auth status` to confirm, then tell user to run `gh auth login` |
-| Not in a git repo | Tell user, stop |
-| `develop` branch missing | Warn user the repo may not follow git flow; fall back to `main`/`master` as base and mention they may want to create a `develop` branch |
-| Push rejected (branch exists on remote) | Try `git push --force-with-lease` only if branch was just created by this skill; otherwise ask user |
-| `gh pr create` fails (no upstream) | Ensure `--base` is set correctly per git flow conventions |
+## What
+Adds a `greet()` command.
+MSG
+```
 
----
+Add `--new-branch feature/<short-topic>` before `<<'MSG'` for case `A_NEW_BRANCH`.
 
-## Expected tool-call sequence
+It commits (refusing new files that look like secrets or are huge), pushes (never forced), reuses an open PR for the branch or creates one (assigned to `@me`), squash-merges exactly the pushed commit with `--delete-branch`, checks out the base branch, pulls with `--ff-only`, and deletes the local branch. If checks or reviews block the merge it enables auto-merge instead and says so.
 
-Every invocation of this skill MUST produce tool calls in roughly this order. If you find yourself writing a final answer without having made these calls, STOP and start over with the Bash tool.
+User asked for PRs without merging? Add `--no-merge`. Any other variation the script has no option for (merge commit instead of squash, rebase, bypassing checks): tell the user this skill does not do that, and stop.
 
-1. `Bash: git status`
-2. `Bash: git diff` (and `git diff --staged` if anything is staged)
-3. `Bash: git branch -a | grep -E '(develop|main|master)'`
-4. Text to user: proposed branch name + commit message, ask for confirmation
-5. `Bash: git checkout <base> && git pull origin <base> && git checkout -b <branch>`
-6. `Bash: git add -A && git commit -m "<msg>"`
-7. `Bash: git push -u origin <branch>`
-8. `Bash: gh pr create --base <base> --title "..." --body "..." --assignee "@me"`
-9. Text to user: the real PR URL returned by step 8 — never a placeholder like `.../pull/42` or `user/repo/pull/123`.
+### Step 4 — summary
+
+One table after all repos, built only from the script's `RESULT:`, `PR:` and `STOP:` lines:
+
+```
+| Repo            | Branch    | Result                                   | PR    |
+|-----------------|-----------|------------------------------------------|-------|
+| onion-demo-01   | feature/x | merged, back on main & pulled            | <url> |
+| onion-prod-01   | feature/y | no changes → back on main & pulled       | —     |
+| onion-tech-01   | main      | STOP: new file '.env' looks like a secret | —     |
+```
+
+A single repo's STOP never aborts the batch — finish the others first.

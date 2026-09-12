@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "demo-playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--caps=devtools,vision,network,storage,testing",
+        "--headless",
+        "--isolated",
+        "--viewport-size=1600x900",
+        "--output-dir=./demo/capture",
+        "--init-script=${CLAUDE_PLUGIN_ROOT}/assets/cursor-overlay.js"
+      ],
+      "env": {
+        "NPM_CONFIG_CACHE": "${TMPDIR}/codex-demo-playwright-npm-cache",
+        "NPM_CONFIG_UPDATE_NOTIFIER": "false"
+      },
+      "description": "Drives the app UI and records one video clip per demo section. --caps=devtools is required for browser_start_video, browser_stop_video, and browser_video_chapter; network, storage, and testing enable route blocking, auth injection, and state verification."
+    },
+    "demo-elevenlabs": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "elevenlabs-mcp"
+      ],
+      "env": {
+        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}",
+        "ELEVENLABS_MCP_OUTPUT_MODE": "files"
+      },
+      "description": "Voiceover generation, voice search, and optional music beds via ElevenLabs"
+    }
+  }
+}

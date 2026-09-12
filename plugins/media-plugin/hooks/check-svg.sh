@@ -3,7 +3,7 @@
 #
 # Reads PostToolUse JSON from stdin. When tool=Write and file_path ends with
 # .svg, runs `xmllint --noout` (well-formedness) and echoes a one-line reminder
-# to stderr so it's fed back to Claude — enforcing svg-mastery HARD RULE 4
+# to stderr so it's fed back to Codex — enforcing svg-mastery HARD RULE 4
 # (never ship an unrendered SVG).
 #
 # Non-fatal by design: it reports, it does not block. Safe for non-svg writes.

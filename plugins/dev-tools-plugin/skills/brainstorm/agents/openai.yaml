@@ -1,0 +1,7 @@
+interface:
+  display_name: "Brainstorm"
+  short_description: "Compare options and recommend a direction."
+  default_prompt: "Use $brainstorm to compare approaches to this decision."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,7 +1,7 @@
 {
   "name": "web-design-plugin",
-  "version": "1.5.10",
-  "description": "End-to-end web design plugin for Codex, from design docs to implementation and visual iteration.",
+  "version": "1.6.0",
+  "description": "End-to-end web design plugin for Codex, from design docs to implementation and visual iteration. Requires design-plugin and media-plugin.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Web Design Plugin",
     "shortDescription": "Design and build websites with an anti-slop workflow.",
-    "longDescription": "Packages the Codex web design workflow with design documentation, scaffold generation, parallel page building, and visual fix passes.",
+    "longDescription": "Packages the Codex web design workflow with design documentation, scaffold generation, parallel page building, and visual fix passes. Install design-plugin and media-plugin alongside it.",
     "developerName": "Lukas Kellerstein",
     "category": "Web Development",
     "capabilities": [
