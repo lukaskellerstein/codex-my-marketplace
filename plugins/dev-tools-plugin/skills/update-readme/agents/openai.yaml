@@ -1,0 +1,7 @@
+interface:
+  display_name: "Update README"
+  short_description: "Create or improve a repository README."
+  default_prompt: "Use $update-readme to refresh this repository's README."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,19 +1,6 @@
 ---
 name: svg-mastery
-description: >
-  Expert knowledge for working with SVG (Scalable Vector Graphics) — optimization, embedding,
-  animation, accessibility, responsive scaling, React integration, filters, and programmatic
-  creation. Use when the user asks to "optimize SVG", "clean up SVG", "reduce SVG file size",
-  "embed SVG in HTML", "inline SVG vs img tag", "animate SVG", "SVG stroke animation",
-  "SVG morphing", "accessible SVG", "SVG viewBox", "responsive SVG", "SVG in React",
-  "SVG sprite", "SVG gradient", "SVG filter", "clip-path", "SVG mask", "create SVG
-  programmatically", "SVG path commands", "SVGO", "currentColor SVG". Also covers hand-authored
-  vector work and SVG QA: "vector illustration", "draw SVG art", "isometric SVG", "SVG logo /
-  custom mark / badge", "SVG pattern / background", "SVG text on path", "validate SVG", "why is
-  my SVG broken / blank / clipped", "render SVG to PNG", "check SVG looks right", "fix SVG bug".
-  Or any question about SVG best practices, techniques, or patterns. Complements icon-library
-  (which sources icons) and graph-generation (which produces charts/diagrams/maps) by providing
-  deep knowledge on how to author, optimize, validate, and manipulate SVGs correctly.
+description: Author, optimize, animate, embed, validate, and debug SVG assets, including accessible and responsive SVG, React integration, filters, paths, logos, illustrations, patterns, and rendering QA. Use icon-library to source existing icons and graph-generation for charts or diagrams.
 ---
 
 # SVG Mastery

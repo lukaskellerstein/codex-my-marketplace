@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sync Spec Kit"
+  short_description: "Reconcile feature specs with implementation."
+  default_prompt: "Use $sync-spec-kit to update the feature spec from the implementation."
+
+policy:
+  allow_implicit_invocation: false

@@ -15,9 +15,11 @@ Guide for creating and maintaining professional, comprehensive root-level `READM
 
 ## When NOT to Use
 
-- For `docs/` folder structure and internal documentation → use `update-docs`
-- For feature-specific documentation → use `update-docs`
-- For architecture decision records → use `update-docs`
+- For `docs/` folder structure and internal documentation → tell the user to run `/update-docs`
+- For feature-specific documentation → tell the user to run `/update-feature-docs`
+- For architecture decision records → tell the user to run `/update-docs`
+
+Those are user-invoked skills: you cannot load them yourself, so point the user at the command rather than attempting the work here.
 
 ## Workflow
 
@@ -71,8 +73,6 @@ Always include at least one mermaid diagram showing the system architecture.
 ```markdown
 ## Architecture
 
-<!-- Use graph-generation skill for complex visualizations -->
-
 ```mermaid
 graph TD
     A[Client] --> B[API Gateway]
@@ -87,7 +87,7 @@ Common README diagrams:
 - **Data flow** — how data moves through the system
 - **Deployment overview** — infrastructure and deployment topology
 
-Use the `graph-generation` skill for complex or multi-diagram visualizations.
+Split a complex visualization into several small mermaid diagrams rather than one dense one.
 
 ### 5. Quick Start / Getting Started
 

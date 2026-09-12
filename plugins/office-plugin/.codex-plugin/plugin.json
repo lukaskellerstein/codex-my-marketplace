@@ -1,6 +1,6 @@
 {
   "name": "office-plugin",
-  "version": "5.0.2",
+  "version": "5.1.0",
   "description": "Office document generation plugin for PPTX, DOCX, and XLSX workflows.",
   "author": {
     "name": "Lukas Kellerstein",
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Office Plugin",
     "shortDescription": "Professional office document workflows.",
-    "longDescription": "Provides Codex skills and scripts for PowerPoint, Word, and Excel generation and editing workflows.",
+    "longDescription": "Provides standalone Codex skills and scripts for PowerPoint, Word, and Excel generation and editing. It can use media-plugin for richer visuals when installed.",
     "developerName": "Lukas Kellerstein",
     "category": "Documentation",
     "capabilities": [

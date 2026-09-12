@@ -1,0 +1,7 @@
+interface:
+  display_name: "Update Docs"
+  short_description: "Create or refresh project documentation."
+  default_prompt: "Use $update-docs to align project documentation with the codebase."
+
+policy:
+  allow_implicit_invocation: false

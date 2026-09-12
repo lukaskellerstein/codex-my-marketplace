@@ -1,0 +1,7 @@
+interface:
+  display_name: "Update Feature Docs"
+  short_description: "Document changes on the current feature branch."
+  default_prompt: "Use $update-feature-docs to document the current feature branch."
+
+policy:
+  allow_implicit_invocation: false

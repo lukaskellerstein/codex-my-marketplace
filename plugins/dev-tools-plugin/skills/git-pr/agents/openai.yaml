@@ -1,0 +1,7 @@
+interface:
+  display_name: "Git PR"
+  short_description: "Ship and merge changes through pull requests."
+  default_prompt: "Use $git-pr to ship and merge the current repository changes."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,35 +1,6 @@
 ---
 name: update-docs
-description: >
-  Create or update project documentation. If no docs/ folder exists, creates comprehensive
-  documentation from scratch using multiple parallel agents covering architecture, infrastructure,
-  security, tech stack, and features. If docs/ already exists, re-analyzes the codebase and
-  updates all sections EXCEPT docs/features/ (use update-feature-docs for feature documentation).
-
-  <example>
-  Context: User wants to create documentation for a project
-  user: "create documentation for this project"
-  </example>
-
-  <example>
-  Context: User wants to update existing docs
-  user: "/update-docs"
-  </example>
-
-  <example>
-  Context: Project has no docs
-  user: "this project has no docs, can you write them?"
-  </example>
-
-  <example>
-  Context: User wants to refresh docs after changes
-  user: "update the project documentation"
-  </example>
-
-  <example>
-  Context: User wants comprehensive documentation
-  user: "document this entire codebase"
-  </example>
+description: Create or refresh project documentation for architecture, infrastructure, security, technology, and features outside docs/features. Use update-feature-docs for branch-specific feature documentation.
 ---
 
 # Create or Update Project Documentation
@@ -246,7 +217,7 @@ Documentation [created|updated]:
 ## Important
 
 - Always use mermaid diagrams — never ASCII art or external image links
-- Use the mermaid MCP server (`mcp__plugin_media-plugin_mermaid__*`) to validate diagram syntax
+- Use the mermaid MCP server (`mcp__plugin_dev-tools-plugin_mermaid__validate_and_render_mermaid_diagram`) to validate diagram syntax
 - Base ALL content on actual codebase analysis — never speculate or assume
 - Keep generated docs concise — they are starting points to be expanded
 - Never include actual secrets, credentials, or sensitive data

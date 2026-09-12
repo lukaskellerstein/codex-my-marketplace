@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "mermaid": {
+      "url": "https://mcp.mermaid.ai/mcp",
+      "type": "http",
+      "description": "Mermaid diagram syntax validation for generated documentation"
+    }
+  }
+}

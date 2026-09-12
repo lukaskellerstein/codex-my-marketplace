@@ -3,7 +3,7 @@
 #
 # Reads PostToolUse JSON from stdin. When tool=Write and file_path ends with
 # .drawio, runs the local postprocessor in place and echoes a one-line summary
-# to stderr so it's fed back to Claude.
+# to stderr so it's fed back to Codex.
 #
 # Safe for non-drawio writes: exits 0 immediately.
 set -euo pipefail

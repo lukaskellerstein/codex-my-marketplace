@@ -1,0 +1,7 @@
+interface:
+  display_name: "Question"
+  short_description: "Investigate current behavior with evidence."
+  default_prompt: "Use $question to explain how this code works today."
+
+policy:
+  allow_implicit_invocation: false

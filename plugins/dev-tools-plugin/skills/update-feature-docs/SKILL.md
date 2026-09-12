@@ -1,32 +1,6 @@
 ---
 name: update-feature-docs
-description: >
-  Generate or update documentation for the current feature branch.
-  Analyzes all changes (commits, diffs) between the feature branch and base branch,
-  then creates or updates docs/features/<index>_<feature-name>/README.md with
-  incremental indexing based on existing feature docs.
-  Use when documenting a feature branch, creating feature documentation from branch changes,
-  or updating existing feature docs after additional commits.
-
-  <example>
-  Context: User wants to document their feature branch
-  user: "/update-feature-docs"
-  </example>
-
-  <example>
-  Context: User wants to document changes
-  user: "document this feature branch"
-  </example>
-
-  <example>
-  Context: User wants to update existing feature docs
-  user: "update the feature docs with my latest changes"
-  </example>
-
-  <example>
-  Context: User specifies a base branch
-  user: "/update-feature-docs develop"
-  </example>
+description: Generate or update docs/features documentation for the current feature branch by analyzing its commits and diff against the base branch.
 ---
 
 # Update Feature Documentation
@@ -200,7 +174,7 @@ Feature documented: <Feature Name>
 ## Important
 
 - Always use mermaid diagrams — at minimum one diagram showing the feature's architecture or flow
-- Use the mermaid MCP server (`mcp__plugin_media-plugin_mermaid__*`) to validate diagram syntax
+- Use the mermaid MCP server (`mcp__plugin_dev-tools-plugin_mermaid__validate_and_render_mermaid_diagram`) to validate diagram syntax
 - Base everything on actual code changes — do not speculate about intent
 - If the feature modifies existing architecture, note what changed from the previous state
 - Omit sections that have no relevant content (e.g., no API changes) rather than leaving them empty

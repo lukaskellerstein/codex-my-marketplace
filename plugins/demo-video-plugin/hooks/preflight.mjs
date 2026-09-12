@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+// SessionStart: environment + progress preflight.
+//
+// Deliberately silent in every project that has no demo/ directory — this hook runs in
+// every session and must not add noise. When a demo IS in progress it reports two things
+// Codex would otherwise have to rediscover: which tools are missing, and which pipeline
+// stage the artifacts are actually at.
+
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { readHookInput, projectDir, emitContext, silent, which } from './lib/hookio.mjs';
+
+const input = await readHookInput();
+const root = projectDir(input);
+const dDir = join(root, 'demo');
+
+if (!existsSync(dDir)) silent();
+
+/** Entries in demo/<dir> (or an absolute dir) ending in `ext`, optionally starting with `prefix`. */
+const count = (dir, ext, prefix = '') => {
+  try {
+    return readdirSync(dir.startsWith('/') ? dir : join(dDir, dir)).filter(
+      (f) => f.toLowerCase().endsWith(ext) && f.startsWith(prefix)
+    ).length;
+  } catch {
+    return 0;
+  }
+};
+const has = (p) => existsSync(join(dDir, p));
+
+// ── Tooling ────────────────────────────────────────────────────────────────────
+const missing = [];
+if (!which('ffmpeg') || !which('ffprobe')) missing.push('ffmpeg/ffprobe (brew install ffmpeg)');
+if (!which('npx')) missing.push('node/npx');
+if (!which('uvx')) missing.push('uvx — needed by the demo-elevenlabs MCP server (brew install uv)');
+if (!process.env.ELEVENLABS_API_KEY) missing.push('ELEVENLABS_API_KEY in the environment');
+
+const playwrightCache = [
+  join(process.env.HOME || '', 'Library/Caches/ms-playwright'),
+  join(process.env.HOME || '', '.cache/ms-playwright'),
+].some(existsSync);
+if (!playwrightCache) missing.push('Playwright browsers (npx playwright install chromium)');
+
+// The bundled studio installs Remotion dependencies locally. Detect it best-effort.
+const remotionInstalled =
+  existsSync(join(dDir, 'studio/package.json')) ||
+  existsSync(join(dDir, 'studio/node_modules/remotion'));
+
+// ── Pipeline stage ─────────────────────────────────────────────────────────────
+let stage = 'brief';
+let detail = '';
+if (has('out/demo.mp4')) stage = 'done (final render exists)';
+else if (has('out/demo-draft.mp4')) stage = 'draft rendered — awaiting review';
+else if (has('timeline.json')) stage = 'reconciled — ready to render';
+else if (count('audio', '.mp3') > 0 && count('capture', '.mp4') > 0) stage = 'captured + voiced — ready to reconcile';
+else if (count('capture', '.mp4') > 0) stage = 'clips captured — voiceover next';
+else if (has('storyboard.json')) stage = 'storyboard written — capture next';
+else if (has('brief.md')) stage = 'brief written — storyboard next';
+
+if (has('storyboard.json')) {
+  try {
+    const sb = JSON.parse(readFileSync(join(dDir, 'storyboard.json'), 'utf8'));
+    const total = (sb.sections || []).length;
+    const captured = count('capture', '.mp4');
+    const voiced = count('audio', '.mp3');
+    const capture = sb.meta?.capture ?? {};
+    detail =
+      ` "${sb.meta?.title ?? 'untitled'}" — ${total} sections, ` +
+      `${captured} clip(s) captured, ${voiced} narration file(s), target ${sb.meta?.targetSeconds ?? '?'}s.` +
+      (capture.driver || capture.recorder
+        ? ` Capture: driver ${capture.driver ?? 'default'}, recorder ${capture.recorder ?? 'playwright'}.`
+        : '') +
+      (has('out/demo.fcpxml') ? ' A Final Cut Pro project is exported at demo/out/demo.fcpxml.' : '');
+
+    // Optional tools, checked only when this demo declares them.
+    if (capture.recorder === 'obs') {
+      if (!existsSync('/Applications/OBS.app')) missing.push('OBS (meta.capture.recorder is "obs")');
+      if (!process.env.OBS_WEBSOCKET_PASSWORD) {
+        missing.push('OBS_WEBSOCKET_PASSWORD in the environment (OBS → Tools → WebSocket Server Settings)');
+      }
+      if (Number(process.versions.node.split('.')[0]) < 22) missing.push('Node 22+ for the OBS WebSocket client');
+    }
+    if (sb.meta?.fcp && !count('/Applications', '.app', 'Final Cut Pro')) {
+      missing.push('Final Cut Pro (meta.fcp is set)');
+    }
+  } catch {
+    detail = ' (storyboard.json is present but does not parse — fix it before continuing.)';
+  }
+}
+
+const lines = [
+  `demo-video: a demo is in progress at demo/ — stage: ${stage}.${detail}`,
+  'Load the demo-video skill before touching any demo/ artifact; it owns the pipeline and the stage gates.',
+];
+if (!remotionInstalled) {
+  lines.push(
+    'The bundled Remotion studio is missing. Run $demo-setup before the assembly stage to scaffold it.'
+  );
+}
+if (missing.length) {
+  lines.push(`Missing prerequisites: ${missing.join('; ')}. Run $demo-setup to fix.`);
+}
+
+emitContext('SessionStart', lines.join('\n'));

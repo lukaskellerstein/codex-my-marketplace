@@ -1,7 +1,7 @@
 {
   "name": "dev-tools-plugin",
-  "version": "1.2.2",
-  "description": "Developer workflow plugin for git, dead-code analysis, dependency updates, spec sync, and documentation maintenance tasks.",
+  "version": "1.6.0+codex.20260912223149",
+  "description": "Developer tooling for read-only thinking and Q&A, git workflows, code hygiene, dependency management, and project documentation. Every skill is user-invoked only.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -11,16 +11,21 @@
   "license": "UNLICENSED",
   "keywords": [
     "codex",
+    "brainstorm",
+    "question",
+    "read-only",
     "developer-tools",
     "git",
     "dependencies",
-    "docs"
+    "docs",
+    "mermaid"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Dev Tools Plugin",
     "shortDescription": "Reusable developer workflow skills.",
-    "longDescription": "Adds Codex skills and specialist agents for pull requests, dead-code analysis, dependency updates, spec synchronization, and documentation updates.",
+    "longDescription": "Adds explicit-only Codex skills for brainstorming, evidence-backed Q&A, pull requests, dead-code analysis, dependency updates, spec synchronization, and documentation updates with Mermaid validation.",
     "developerName": "Lukas Kellerstein",
     "category": "Productivity",
     "capabilities": [
@@ -29,9 +34,9 @@
       "Interactive"
     ],
     "defaultPrompt": [
-      "Review this repo for dead code and explain the safe removals.",
-      "Update dependencies in this project and note any breaking changes.",
-      "Update the project docs to match the current implementation."
+      "Use $brainstorm to compare approaches to this change.",
+      "Use $question to explain how this code works today.",
+      "Use $git-pr to ship and merge the current work."
     ],
     "brandColor": "#2563EB"
   }
