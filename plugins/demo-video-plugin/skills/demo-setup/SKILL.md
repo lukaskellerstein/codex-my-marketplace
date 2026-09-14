@@ -95,8 +95,10 @@ machine where OBS is also used for other work. Full guide: `demo-capture/referen
 ## 6. Final Cut Pro (optional — the hand finish)
 
 Nothing to install beyond FCP itself. `setup.sh` reports the newest FCPXML version it
-imports; `node ${CLAUDE_PLUGIN_ROOT}/scripts/fcp-templates.mjs` lists the title templates
-`meta.fcp` can name. Guide: `demo-assembly/references/final-cut-pro.md`.
+imports; `node ${CLAUDE_PLUGIN_ROOT}/scripts/fcp-templates.mjs` inventories titles,
+transitions, effects, and generators. It identifies motionVFX templates and separates genuinely
+downloaded assets from mExtension catalog placeholders. Preview and collection lookups require
+network access. Guide: `demo-assembly/references/final-cut-pro.md`.
 
 ## 7. Scaffold (optional)
 

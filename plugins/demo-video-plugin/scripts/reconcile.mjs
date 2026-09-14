@@ -228,6 +228,7 @@ let cursor = 0;
   const transition = {
     kind: s.transitionIn?.kind ?? (i === 0 ? 'cut' : 'crossfade'),
     seconds: s.transitionIn?.seconds ?? DEFAULT_TRANSITION,
+    ...(s.transitionIn?.fcpTemplate ? { fcpTemplate: s.transitionIn.fcpTemplate } : {}),
   };
   // A surface change is a context change: cut hard so the viewer registers it.
   if (i > 0 && sb.sections[i - 1].surface !== s.surface && !s.transitionIn?.kind) {
@@ -320,6 +321,7 @@ let cursor = 0;
     };
   }
   if (captions.length) section.captions = captions;
+  if (s.fcp) section.fcp = s.fcp;
   if (s.surface === 'still') section.still = s.still;
   if (s.surface === 'code') section.code = s.code;
   if (s.surface === 'titlecard') section.titlecard = { title: s.title, subtitle: s.onScreenText };

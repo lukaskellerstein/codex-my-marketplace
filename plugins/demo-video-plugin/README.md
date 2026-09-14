@@ -6,7 +6,7 @@ Reads the codebase → writes a storyboard with real narrative value → prepare
 app state → drives the UI with Playwright and records one clip per section (web **and**
 Electron, recorded by Playwright or by **OBS**) → generates ElevenLabs voiceover → reconciles
 *measured* durations into a timeline → renders the final cut with Remotion, or exports it as a
-**Final Cut Pro** project.
+**Final Cut Pro** project, with first-class motionVFX inventory and visual template selection.
 
 ```
 $demo-setup                 # once per machine: ffmpeg, Playwright, Remotion, API key, OBS, FCP
@@ -147,13 +147,31 @@ reach. Guides: `skills/demo-capture/references/obs.md` and `electron.md`.
 ```bash
 bash scripts/render.sh --final                                # Remotion -> demo/out/demo.mp4
 node scripts/timeline-to-fcpxml.mjs --project .               # FCP      -> demo/out/demo.fcpxml
-node scripts/fcp-templates.mjs --category "Lower Thirds"      # what meta.fcp can name
+node scripts/fcp-finish-manifest.mjs --project .             # auditable native handoff
+node scripts/prepare-youtube-package.mjs --project .        # after explicit final approval
+node scripts/fcp-templates.mjs --provider motionvfx --downloaded --list
+node scripts/fcp-templates.mjs --token 51PI --previews --json # real still/video metadata
 ```
 
 The FCPXML carries the same cut: clips with retimes and holds, cross dissolves, narration,
-the ducked music bed, title cards and lower thirds on FCP's own Motion templates, captions and
-chapter markers. It is validated against the installed FCP's DTD before anyone imports it.
+the ducked music bed, title cards, lower thirds, selected Motion transitions and per-shot effects,
+captions and chapter markers. motionVFX catalog placeholders are never mistaken for installed
+templates; downloaded assets can be selected by stable token after inspecting their public still
+and video previews. It is validated against the installed FCP's DTD before anyone imports it.
 Guide: `skills/demo-assembly/references/final-cut-pro.md`.
+
+When native Motion design is the approved finish, set `meta.authoritativeRenderer` to
+`final-cut-pro`. The generated finish manifest records source hashes, selected template tokens,
+controls that need hand work in FCP, and keeps the handoff pending until the exported pixels and
+human watch/listen review pass.
+
+For multiple videos, use numbered `meta.videoId` values and version approved cuts as `v1`, `v2`,
+etc. Archive and restore each approved Final Cut library independently, and preserve the complete
+voice recipe with its audio (never API credentials).
+
+After final-movie approval, the YouTube helper creates `demo/<videoId>/youtube/` next to `final/`.
+It prepares local copy and measured chapters, preserves manual edits when the movie checksum is
+unchanged, and never uploads or publishes.
 
 ## Layout
 

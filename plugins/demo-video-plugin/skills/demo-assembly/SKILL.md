@@ -1,6 +1,6 @@
 ---
 name: demo-assembly
-description: Assembles measured clips and narration into a finished demo video — reconciles real durations into a timeline, then renders it with Remotion or exports it as a Final Cut Pro project (FCPXML) for finishing with FCP titles and lower thirds. Covers the timeline contract, the bundled timeline-driven Remotion project, how to extend or replace it for custom compositions, transitions, camera moves, captions, music ducking, draft/final render presets, and the FCPXML export. Use at the reconcile, render, or editing stage of a demo video, when changing how the finished video looks, or when the user wants to edit or finish a demo in Final Cut Pro.
+description: Assembles measured clips and narration into a finished demo video — reconciles real durations into a timeline, then renders it with Remotion or exports it as a Final Cut Pro project (FCPXML) for finishing with Apple or motionVFX titles, transitions, and effects. Covers the timeline contract, the bundled timeline-driven Remotion project, visual template selection, camera moves, captions, music ducking, draft/final render presets, and the FCPXML export. Use at the reconcile, render, or editing stage of a demo video, when changing how the finished video looks, or when the user wants to edit or finish a demo in Final Cut Pro.
 ---
 
 # Demo Assembly
@@ -19,13 +19,19 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/render.sh --final            # -> demo/out/de
 | Finish | Command | Ends with |
 |---|---|---|
 | Remotion (default) | `render.sh --final` | `demo/out/demo.mp4`, no person needed |
-| Final Cut Pro | `node ${CLAUDE_PLUGIN_ROOT}/scripts/timeline-to-fcpxml.mjs --project .` | `demo/out/demo.fcpxml`, finished and shared by a person in FCP |
+| Final Cut Pro | `node ${CLAUDE_PLUGIN_ROOT}/scripts/timeline-to-fcpxml.mjs --project .` | `demo/out/demo.fcpxml`, with installed Apple/motionVFX templates, finished and shared by a person in FCP |
 
 Both read the same reconciled timeline, so the cut, the narration timing and the ducking are
 identical; only titles, lower thirds and hand polish differ. Offer the FCP finish when the
 user cares about FCP's title templates or wants to fine-tune by hand. Say plainly that its
 last step is theirs. Mapping, template choice, what does not carry over, and the import
 checklist: [final-cut-pro.md](${CLAUDE_PLUGIN_ROOT}/skills/demo-assembly/references/final-cut-pro.md).
+
+When motionVFX is installed, treat it as an editorial source rather than a name list. Inventory
+downloaded templates separately from mExtension placeholders, shortlist against the footage,
+inspect the candidates' real still and video previews, and then select by four-character token.
+Do not pick a generic `Title` or `Lower Third` blindly. The commands, evaluation rubric, and
+FCPXML fields are in the Final Cut guide above.
 
 ## Do not hand-write the timeline
 

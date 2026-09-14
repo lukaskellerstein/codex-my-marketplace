@@ -38,8 +38,9 @@ section plus the narration cut to it.
 | 8 | Draft render | `demo-assembly` | `demo/out/demo-draft.mp4` → **GATE 3** |
 | 9 | Review | `demo-review` (+ `demo-frame-critic`) | findings, fixes, re-takes |
 | 10 | Final render | `demo-assembly` | `demo/out/demo.mp4`, and/or `demo/out/demo.fcpxml` for a Final Cut Pro finish |
+| 11 | Post-approval package | `demo-video` | `demo/<videoId>/youtube/` metadata and thumbnail package |
 
-Stages 4–10 are individually re-runnable. In practice one section gets re-cut several
+Stages 4–11 are individually re-runnable. In practice one section gets re-cut several
 times while the rest stays untouched — never re-run the whole pipeline to fix one section.
 
 ### Defaults when the request is vague
@@ -71,7 +72,10 @@ to skip. Do not spend ElevenLabs credits before the narrative is approved.
 ambiguous, and what the real timings were. If the app is not demo-ready, say so here.
 
 **GATE 3, after the draft render.** A 0.6-scale draft renders in a fraction of the time.
-The user watches it before the final. Never go straight to a final render.
+The user watches it before the final. When `meta.authoritativeRenderer` is `final-cut-pro`,
+this gate also requires a short warning-free native import/export probe; the Remotion draft is
+only evidence for footage, narration, and timing, not native Motion titles or logo bindings.
+Never go straight to a final render.
 
 ## Artifact contract
 
@@ -96,6 +100,18 @@ Committed files rebuild everything else. Media is regenerable and gitignored.
 Section ids are `NN-slug` (`03-search`) and are the join key across every stage: clip,
 narration, timeline entry, and review finding all use the same id. Getting an id wrong is
 the one mistake that silently misaligns the whole video.
+
+For repositories with multiple videos, set stable numbered `meta.videoId` and approved
+`meta.version` values. Route capture, audio, timeline, review, and archive outputs beneath that
+video/version; never let a new subject overwrite another video's approved package. Preserve
+`meta.voice` (provider, voice/model IDs, and complete generation settings) with the approved audio,
+without retaining credentials.
+
+After explicit approval of the actual final movie, run `scripts/prepare-youtube-package.mjs` to
+create `demo/<videoId>/youtube/` beside the approved `final/` package. It derives copy and chapters
+from the approved storyboard/timeline, preserves manually edited metadata when the movie checksum
+is unchanged, and leaves thumbnail, requirements, and disclosure checks for review. It never
+uploads, publishes, schedules, commits, or pushes.
 
 Details and edge cases: [artifact-contracts.md](${CLAUDE_PLUGIN_ROOT}/skills/demo-video/references/artifact-contracts.md).
 
@@ -137,8 +153,11 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/timeline-to-fcpxml.mjs --project .
 ```
 
 **Two finishes.** Remotion renders without a person and re-renders for free. The Final Cut
-Pro export turns the same measured timeline into an FCP project for hand-finishing with FCP
-titles and lower thirds — the last step there is a person pressing Share. Ask at GATE 1
+Pro export turns the same measured timeline into an FCP project for hand-finishing with installed
+Apple or motionVFX titles, transitions, and effects. If motionVFX is available, inventory and
+visually preview a small downloaded shortlist before setting the storyboard selectors. Set
+`meta.authoritativeRenderer: "final-cut-pro"` when that native finish is what the user is
+approving; the last step there is still state-checked Share plus human watch/listen review. Ask at GATE 1
 which finish the user wants when `brief.md` does not say; details in
 [final-cut-pro.md](${CLAUDE_PLUGIN_ROOT}/skills/demo-assembly/references/final-cut-pro.md).
 

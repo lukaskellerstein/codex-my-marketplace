@@ -26,6 +26,7 @@ const CAPTURED = new Set(['web', 'electron']);
 const DRIVERS = new Set(['mcp', 'launch', 'attach']);
 const RECORDERS = new Set(['playwright', 'obs', 'ffmpeg']);
 const INPUTS = new Set(['cdp', 'dom']);
+const RENDERERS = new Set(['remotion', 'final-cut-pro']);
 
 // Phrases that make a demo sound like every other demo. Hard-banned ones are the
 // tells that a human never says out loud.
@@ -63,10 +64,25 @@ if (!meta.audience) {
     'meta.audience is required — every narration decision depends on who is watching and what they are deciding.'
   );
 }
+if (meta.videoId !== undefined && !/^\d{2}-[a-z0-9][a-z0-9-]*$/.test(String(meta.videoId))) {
+  errors.push('meta.videoId must be a stable numbered slug such as "01-rex-overview".');
+}
+if (meta.version !== undefined && !/^v\d+$/.test(String(meta.version))) {
+  errors.push('meta.version must look like "v1", "v2", etc.');
+}
 const target = Number(meta.targetSeconds || 0);
 if (!target) errors.push('meta.targetSeconds is required.');
 if (meta.fps && ![24, 25, 30, 60].includes(meta.fps)) {
   errors.push(`meta.fps ${meta.fps} is not one of 24, 25, 30, 60.`);
+}
+if (meta.authoritativeRenderer !== undefined) {
+  if (!RENDERERS.has(meta.authoritativeRenderer)) {
+    errors.push(`meta.authoritativeRenderer "${meta.authoritativeRenderer}" is not one of ${[...RENDERERS].join(', ')}.`);
+  }
+} else if (meta.fcp !== undefined) {
+  warnings.push(
+    'meta.fcp is configured but meta.authoritativeRenderer is unset. Choose "final-cut-pro" if native Motion titles, logos, or transitions are part of the approved finish; a Remotion proxy cannot approve them.'
+  );
 }
 for (const key of ['captureSize', 'outputSize']) {
   if (meta[key] && !/^\d{3,4}x\d{3,4}$/.test(meta[key])) {
@@ -110,12 +126,15 @@ if (meta.capture !== undefined) {
 
 // ── meta.fcp: the Final Cut Pro export ─────────────────────────────────────────
 if (meta.fcp !== undefined) {
-  for (const key of ['titleTemplate', 'lowerThirdTemplate', 'projectName', 'captionLanguage']) {
+  for (const key of ['titleTemplate', 'lowerThirdTemplate', 'transitionTemplate', 'projectName', 'captionLanguage']) {
     if (meta.fcp[key] !== undefined && typeof meta.fcp[key] !== 'string') errors.push(`meta.fcp.${key} must be a string.`);
   }
   if (meta.fcp.version !== undefined && !/^1\.\d{1,2}$/.test(String(meta.fcp.version))) {
     errors.push(`meta.fcp.version must look like "1.14", got "${meta.fcp.version}".`);
   }
+}
+if (meta.authoritativeRenderer === 'final-cut-pro' && meta.fcp === undefined) {
+  errors.push('meta.authoritativeRenderer "final-cut-pro" requires meta.fcp settings so the native finish can be reproduced.');
 }
 
 // ── sections ───────────────────────────────────────────────────────────────────
@@ -259,6 +278,16 @@ sections.forEach((s, i) => {
   }
   if (s.transitionIn?.seconds !== undefined && s.transitionIn.seconds > 0.8) {
     warnings.push(`${at}: a ${s.transitionIn.seconds}s transition is slow for a demo; 0.3-0.5s reads better.`);
+  }
+  if (s.transitionIn?.fcpTemplate !== undefined && typeof s.transitionIn.fcpTemplate !== 'string') {
+    errors.push(`${at}.transitionIn.fcpTemplate must be a string.`);
+  }
+  if (s.fcp !== undefined) {
+    if (!s.fcp || typeof s.fcp !== 'object' || Array.isArray(s.fcp)) {
+      errors.push(`${at}.fcp must be an object.`);
+    } else if (s.fcp.effectTemplate !== undefined && typeof s.fcp.effectTemplate !== 'string') {
+      errors.push(`${at}.fcp.effectTemplate must be a string.`);
+    }
   }
 });
 

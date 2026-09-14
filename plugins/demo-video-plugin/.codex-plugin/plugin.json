@@ -1,7 +1,7 @@
 {
   "name": "demo-video-plugin",
-  "version": "1.1.0+codex.20260912225547",
-  "description": "Build narrated, edited project demos with deterministic app state; Playwright-driven web, launched Electron, or attached-app capture; Playwright or OBS recording; ElevenLabs voiceover; measured timelines; Remotion rendering; and Final Cut Pro export.",
+  "version": "1.1.0+codex.20260914152844",
+  "description": "Build narrated, edited project demos with deterministic app state; Playwright or OBS capture; ElevenLabs voiceover; measured timelines; Remotion rendering; and Final Cut Pro export with first-class motionVFX inventory, previews, titles, transitions, and effects.",
   "author": {
     "name": "Lukas Kellerstein",
     "url": "https://github.com/lukaskellerstein"
@@ -22,6 +22,7 @@
     "obs-websocket",
     "final-cut-pro",
     "fcpxml",
+    "motionvfx",
     "ffmpeg"
   ],
   "skills": "./skills/",
@@ -29,7 +30,7 @@
   "interface": {
     "displayName": "Demo Video Plugin",
     "shortDescription": "Create and finish narrated product demo videos.",
-    "longDescription": "Turns a project repository into a polished demo video through codebase research, narrative scripting, deterministic app preparation, Playwright-driven capture of web, launched Electron, or attached applications, Playwright or OBS recording, ElevenLabs narration, measured timeline reconciliation, Remotion rendering or Final Cut Pro export, and frame-based review.",
+    "longDescription": "Turns a project repository into a polished demo video through codebase research, narrative scripting, deterministic app preparation, Playwright-driven capture of web, launched Electron, or attached applications, Playwright or OBS recording, ElevenLabs narration, measured timeline reconciliation, Remotion rendering or Final Cut Pro export, first-class motionVFX inventory and preview-driven template selection, and frame-based review.",
     "developerName": "Lukas Kellerstein",
     "category": "Media",
     "capabilities": [
@@ -41,6 +42,7 @@
       "Create a 90-second narrated demo of this product.",
       "Record this running desktop app through OBS and produce a measured edit.",
       "Export the reconciled demo timeline as a Final Cut Pro project.",
+      "Inventory my downloaded motionVFX templates, visually compare a shortlist, and choose a coherent Final Cut Pro finish.",
       "Prepare this app for deterministic demo recording.",
       "Review this draft demo and identify what to fix."
     ],
