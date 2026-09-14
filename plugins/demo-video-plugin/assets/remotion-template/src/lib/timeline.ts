@@ -20,6 +20,8 @@ export interface TransitionIn {
   seconds: number;
   /** Overlap with the previous section, already converted to frames. */
   frames: number;
+  /** Optional downloaded Motion template selector, consumed by the FCPXML finish only. */
+  fcpTemplate?: string;
 }
 
 export interface VideoTrack {
@@ -66,6 +68,8 @@ export interface Section {
   still?: string;
   code?: { file: string; lines?: string; language?: string; highlight?: string; content?: string };
   titlecard?: { title: string; subtitle?: string };
+  /** Final Cut-only template choices; ignored by the Remotion finish. */
+  fcp?: { effectTemplate?: string };
 }
 
 export interface Music {

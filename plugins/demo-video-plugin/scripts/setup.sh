@@ -125,6 +125,18 @@ if [[ -n "$FCP_APP" ]]; then
     | sed -E 's/.*FCPXMLv1_([0-9]+)\.dtd/\1/' | sort -n | tail -1)
   ok "$(basename "$FCP_APP" .app) $(defaults read "$FCP_APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null), imports FCPXML up to 1.${FCP_DTD:-?}"
   if command -v xmllint >/dev/null 2>&1; then ok "xmllint (validates the export against FCP's own DTD)"; else warn "xmllint not found — exports go unvalidated"; fi
+  MVFX_EXTENSION='/Applications/motionVFX/Plugins/mExtension.app'
+  if [[ -d "$MVFX_EXTENSION" ]]; then
+    ok "motionVFX mExtension $(defaults read "$MVFX_EXTENSION/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null)"
+    if MVFX_COUNTS=$(node "$PLUGIN_ROOT/scripts/fcp-templates.mjs" --provider motionvfx --downloaded --json 2>/dev/null \
+      | node -e 'let s=""; process.stdin.on("data",c=>s+=c).on("end",()=>{const x=JSON.parse(s); console.log(x.summary.map(r=>`${r.kind} ${r.count}`).join(", "))})'); then
+      ok "downloaded motionVFX templates: ${MVFX_COUNTS:-none} (catalog placeholders excluded)"
+    else
+      warn "motionVFX template inventory failed — run scripts/fcp-templates.mjs directly"
+    fi
+  else
+    warn "motionVFX mExtension not found — optional; Apple and other downloaded Motion templates still work"
+  fi
 else
   warn "Final Cut Pro not installed — needed only for the FCP finish"
 fi

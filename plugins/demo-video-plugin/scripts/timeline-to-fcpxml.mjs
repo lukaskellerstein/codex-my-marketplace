@@ -26,7 +26,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { fcpxmlVersions, findTitleTemplate } from './lib/fcp.mjs';
+import { fcpxmlVersions, listMotionTemplates, resolveMotionTemplate } from './lib/fcp.mjs';
 
 const CROSS_DISSOLVE_UID = 'FxPlug:4731E73A-8DAC-4113-9A30-AE85B1761265';
 const DUCK_RAMP_FRAMES = 6;
@@ -56,6 +56,11 @@ const version = argOf('--version', fcpMeta.version ?? installed[0]?.version ?? '
 
 const { fps, width, height } = timeline;
 const notes = [];
+const downloadedMotionTemplates = listMotionTemplates({ availability: 'downloaded' });
+let visibleMotionTemplates = null;
+const noteOnce = (message) => {
+  if (!notes.includes(message)) notes.push(message);
+};
 
 // ── Time: every value is a rational number of seconds, on a frame boundary ─────
 const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
@@ -180,12 +185,44 @@ function effectFor(name, uid) {
   return id;
 }
 
+function installedTemplate(selector, kind) {
+  const resolution = resolveMotionTemplate(selector, { kind, templates: downloadedMotionTemplates });
+  if (resolution.reason === 'ambiguous') {
+    const choices = resolution.matches.slice(0, 5).map((template) => `${template.category}/${template.name}`).join(', ');
+    throw new Error(
+      `${kind} template "${selector}" is ambiguous (${choices}). Use its motionVFX token or Category/Name from fcp-templates.mjs.`
+    );
+  }
+  return resolution.template;
+}
+
+function unavailableReason(selector, kind) {
+  visibleMotionTemplates ??= listMotionTemplates({ availability: 'all' });
+  const resolution = resolveMotionTemplate(selector, { kind, templates: visibleMotionTemplates });
+  if (resolution.matches.some((template) => template.availability === 'catalog-placeholder')) {
+    return 'is only a motionVFX catalog placeholder; download it in mExtension first';
+  }
+  return 'is not installed';
+}
+
+function optionalTemplateEffect(selector, kind) {
+  if (!selector) return null;
+  const hit = installedTemplate(selector, kind);
+  if (!hit) {
+    noteOnce(`${kind} template "${selector}" ${unavailableReason(selector, kind)}; ignored`);
+    return null;
+  }
+  return { ref: effectFor(hit.name, hit.uid), name: hit.name, template: hit };
+}
+
 function titleEffect(templateName, fallback) {
   const wanted = templateName ?? fallback;
-  const hit = findTitleTemplate(wanted);
+  const hit = installedTemplate(wanted, 'title');
   if (hit) return effectFor(hit.name, hit.uid);
-  if (templateName) notes.push(`title template "${templateName}" is not installed; used "${fallback}"`);
-  const base = findTitleTemplate(fallback);
+  if (templateName) {
+    noteOnce(`title template "${templateName}" ${unavailableReason(templateName, 'title')}; used "${fallback}"`);
+  }
+  const base = installedTemplate(fallback, 'title');
   if (!base) throw new Error(`neither "${wanted}" nor "${fallback}" is installed — run fcp-templates.mjs to list templates`);
   return effectFor(base.name, base.uid);
 }
@@ -218,17 +255,28 @@ sections.forEach((s, i) => {
   if (duration <= 0) throw new Error(`${s.id}: no picture left after transitions (${duration} frames)`);
 
   if (i > 0 && s.transitionIn?.kind !== 'cut' && s.transitionIn?.frames > 0) {
-    if (s.transitionIn.kind !== 'crossfade') notes.push(`${s.id}: "${s.transitionIn.kind}" became a Cross Dissolve`);
-    const ref = effectFor('Cross Dissolve', CROSS_DISSOLVE_UID);
+    const selectedTransition = optionalTemplateEffect(
+      s.transitionIn?.fcpTemplate ?? fcpMeta.transitionTemplate,
+      'transition'
+    );
+    if (!selectedTransition && s.transitionIn.kind !== 'crossfade') {
+      notes.push(`${s.id}: "${s.transitionIn.kind}" became a Cross Dissolve`);
+    }
+    const transitionName = selectedTransition?.name ?? 'Cross Dissolve';
+    const ref = selectedTransition?.ref ?? effectFor('Cross Dissolve', CROSS_DISSOLVE_UID);
     storyline.push(
-      el('transition', { name: 'Cross Dissolve', offset: frames(s.startFrame), duration: frames(s.transitionIn.frames) }, [
-        el('filter-video', { ref, name: 'Cross Dissolve' }),
+      el('transition', { name: transitionName, offset: frames(s.startFrame), duration: frames(s.transitionIn.frames) }, [
+        el('filter-video', { ref, name: transitionName }),
       ])
     );
   }
 
   const name = `${s.id} ${s.title}`;
   const clipMarkers = [];
+  const selectedEffect = optionalTemplateEffect(s.fcp?.effectTemplate, 'effect');
+  const videoFilter = selectedEffect
+    ? el('filter-video', { ref: selectedEffect.ref, name: selectedEffect.name })
+    : null;
   const cam = s.camera ?? {};
   let transform = null;
   if (cam.kind && cam.kind !== 'static' && cam.to !== cam.from) {
@@ -256,7 +304,7 @@ sections.forEach((s, i) => {
     );
   } else if (s.surface === 'still' && s.still) {
     const asset = assetFor(s.still, 'still');
-    storyline.push(el('video', { ref: asset.id, name, offset: frames(offset), start: frames(k0), duration: frames(duration) }, [transform]));
+    storyline.push(el('video', { ref: asset.id, name, offset: frames(offset), start: frames(k0), duration: frames(duration) }, [transform, videoFilter]));
   } else if (s.video) {
     const v = s.video;
     const asset = assetFor(v.src, 'video');
@@ -284,6 +332,7 @@ sections.forEach((s, i) => {
       el('asset-clip', { ref: asset.id, name, offset: frames(offset), start, duration: frames(duration) }, [
         timeMap,
         transform,
+        videoFilter,
         ...clipMarkers,
       ])
     );

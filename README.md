@@ -66,7 +66,7 @@ Every skill in this plugin is **explicit-only**. Codex never selects one implici
 
 ### [demo-video-plugin](plugins/demo-video-plugin) `v1.1.0`
 
-Turns a project repository into a narrated, edited demo video. It researches the codebase, writes a storyboard, prepares deterministic demo state, and drives web, launched Electron, or already-running applications with Playwright. It records each section with Playwright video or OBS, generates ElevenLabs voiceover, reconciles measured durations into a timeline, then renders the cut with Remotion or exports it as a Final Cut Pro project.
+Turns a project repository into a narrated, edited demo video. It researches the codebase, writes a storyboard, prepares deterministic demo state, and drives web, launched Electron, or already-running applications with Playwright. It records each section with Playwright video or OBS, generates ElevenLabs voiceover, reconciles measured durations into a timeline, then renders the cut with Remotion or exports it as a Final Cut Pro project. The FCP path treats motionVFX as a first-class source: it separates downloaded templates from mExtension placeholders, exposes preview stills and videos for visual selection, and supports token-selected titles, transitions, and effects.
 
 - **Skills:** `demo-video`, `demo-setup`, `demo-scripting`, `demo-app-prep`, `demo-capture`, `demo-voiceover`, `demo-assembly`, `demo-review`
 - **Agents:** `demo-researcher`, `demo-capture-operator`, `demo-remotion-builder`, `demo-frame-critic`

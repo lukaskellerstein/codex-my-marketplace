@@ -31,12 +31,19 @@ files with the ids, or re-capture. `reconcile.mjs` matches audio by prefix, so
 Written by you at stage 2, validated on every write. The parts that matter most:
 
 - `meta.title`, `meta.audience` — required. Every narration decision derives from the audience.
+- `meta.videoId` — optional stable numbered slug such as `01-rex-overview`; use a new ID for a
+  new subject, never silently reuse another video's output directory.
+- `meta.version` — optional approved-cut version such as `v1`; revisions of an existing video
+  increment this instead of overwriting an approved archive.
 - `meta.targetSeconds` — required; section durations must sum to within 25% of it (10% warns).
 - `meta.fps` — 24, 25, 30 (default), or 60.
 - `meta.captureSize` (default `1600x900`) and `meta.outputSize` (default `1920x1080`).
   Capturing smaller than output is deliberate: UI text reads larger. See
   `demo-capture/references/cinematography.md`.
 - `meta.captions` — `section` (default) | `word` | `none`.
+- `meta.authoritativeRenderer` — `remotion` or `final-cut-pro`. Set `final-cut-pro` when
+  native Motion titles, logos, transitions, or effects are part of the approved design;
+  a Remotion proxy cannot approve native template rendering.
 - `meta.voice` — the narrator contract: `voiceId`, `modelId`, `speed`, `stability`,
   `similarityBoost`, plus anything else regeneration must reproduce (`style`, `language`,
   `use_speaker_boost`). Free-form — record every parameter you set.
@@ -49,8 +56,17 @@ Written by you at stage 2, validated on every write. The parts that matter most:
   `attach`); `page`: part of the page URL or title; `input`: `cdp` | `dom`; `windowSize`;
   `obs`: `{ input, window, scene }`. See `demo-capture/references/obs.md`.
 - `meta.fcp` — the Final Cut Pro export: `titleTemplate`, `lowerThirdTemplate`,
-  `captionLanguage`, `projectName`, `version`. See
+  `transitionTemplate`, `captionLanguage`, `projectName`, `version`. A template selector may be
+  its exact name, `Category/Name`, full uid, or motionVFX token. See
   `demo-assembly/references/final-cut-pro.md`.
+- `demo/out/fcp-finish-manifest.json` — optional handoff manifest from
+  `scripts/fcp-finish-manifest.mjs`; records source hashes, selected MotionVFX selectors,
+  unresolved native controls, and human review status.
+- `demo/<videoId>/final/` — approved movie, editable native library, required media, source notes,
+  and manifests. Keep working/restored material under the ignored `demo/<videoId>/.work/`.
+- `demo/<videoId>/youtube/` — local upload package generated only after explicit approval of the
+  actual final movie. It contains metadata, measured chapters, and a reviewed thumbnail; it never
+  contains a duplicate movie or performs an upload.
 - `sections[].beat` — `hook | problem | core-flow | wow | integration | proof | close`.
   At least one `core-flow` is required.
 - `sections[].surface` — `web` and `electron` are captured; `still`, `code`, and
@@ -69,6 +85,10 @@ Written by you at stage 2, validated on every write. The parts that matter most:
   and `lines` (shown as the panel header) and `highlight` ("3-5", 1-based).
 - `sections[].resetBefore` — run `demo/prep/reset.sh` before capturing this section.
 - `sections[].setup` — actions the capture scripts run before recording starts.
+- `sections[].transitionIn.fcpTemplate` — optional downloaded Motion transition selector for one
+  non-cut edit, overriding `meta.fcp.transitionTemplate`.
+- `sections[].fcp.effectTemplate` — optional downloaded Motion effect selector applied to that
+  captured or still clip in the FCPXML finish.
 
 ### Action kinds
 
